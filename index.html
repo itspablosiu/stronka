@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pablosiu's Bio</title>
+    
+    <title>pablosiu | bio</title>
+    <meta property="og:title" content="pablosiu">
+    <meta property="og:description" content="Ja nie jestem Snax | Kliknij po linki!">
+    <meta property="og:image" content="https://api.dicebear.com/7.x/pixel-art/svg?seed=pablosiu">
+    <meta name="theme-color" content="#7000ff">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        <title>pablosiu | bio</title>
-
         :root {
             --bg: #080808;
-            --tile-bg: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --accent: #7000ff; /* Fioletowy akcent */
+            --tile-bg: rgba(0, 0, 0, 0.6); /* Przyciemnione kafelki dla lepszej widoczności na GIFie */
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #7000ff;
         }
 
         * {
@@ -22,9 +27,12 @@
             box-sizing: border-box;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
-     
+
         body {
-            background-color: var(--bg);
+            /* TUTAJ ZMIEŃ LINK DO SWOJEGO GIF-A */
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3JmVwPXYxX2ludGVybmFsX2dpZl9ieV9iZCZjdD1n/3o7TKVUn7iM8FMEU24/giphy.gif') no-repeat center center fixed;
+            background-size: cover;
             color: white;
             display: flex;
             justify-content: center;
@@ -33,18 +41,34 @@
             padding: 20px;
         }
 
-        /* Główny układ siatki (Grid) */
+        /* Ekran startowy */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: opacity 0.8s ease;
+        }
+        #overlay.hidden { opacity: 0; pointer-events: none; }
+
+        /* Układ Bento */
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: auto;
             gap: 15px;
             max-width: 600px;
             width: 100%;
+            z-index: 1;
         }
 
         .tile {
             background: var(--tile-bg);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border);
             border-radius: 20px;
             padding: 20px;
@@ -55,53 +79,25 @@
             transition: all 0.3s ease;
             text-decoration: none;
             color: white;
+            text-align: center;
         }
 
         .tile:hover {
             border-color: var(--accent);
-            background: rgba(112, 0, 255, 0.05);
             transform: translateY(-5px);
+            background: rgba(112, 0, 255, 0.1);
         }
 
-        /* Personalizacja kafelków */
-        .profile-tile {
-            grid-column: span 4; /* Na całą szerokość */
-            flex-direction: row;
-            gap: 20px;
-            justify-content: flex-start;
-        }
-
-        .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-        }
-
-        .big-tile {
-            grid-column: span 2;
-            grid-row: span 2;
-            text-align: center;
-        }
-
-        .small-tile {
-            grid-column: span 2;
-        }
-
-        .icon-only {
-            grid-column: span 1;
-            font-size: 24px;
-        }
+        .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; text-align: left; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); }
+        .big-tile { grid-column: span 2; grid-row: span 2; }
+        .small-tile { grid-column: span 2; }
+        .icon-only { grid-column: span 1; font-size: 24px; }
 
         h1 { font-size: 22px; font-weight: 800; }
-        p { color: #888; font-size: 14px; }
-        
-        .tile-title {
-            font-weight: 600;
-            margin-top: 10px;
-        }
+        p { color: #ccc; font-size: 14px; }
+        .tile-title { font-weight: 600; margin-top: 10px; }
 
-        /* Powiadomienie */
         #copy-toast {
             position: fixed;
             top: 20px;
@@ -111,37 +107,17 @@
             font-weight: bold;
             transform: translateY(-100px);
             transition: 0.5s;
+            z-index: 10000;
         }
         #copy-toast.active { transform: translateY(0); }
 
-        /* Responsywność dla telefonów */
         @media (max-width: 480px) {
-            .bento-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
             .profile-tile { grid-column: span 2; }
-            .icon-only { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
-<style>
-    #overlay {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: #000; /* Czarne tło przed wejściem */
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        cursor: pointer;
-        font-family: sans-serif;
-        letter-spacing: 2px;
-        transition: opacity 0.5s ease;
-    }
-    .hidden { opacity: 0; pointer-events: none; }
-</style>
 
 <div id="overlay" onclick="enterSite()">
     [ KLIKNIJ, ABY WEJŚĆ ]
@@ -151,15 +127,6 @@
     <source src="background.mp3" type="audio/mpeg">
 </audio>
 
-<script>
-    function enterSite() {
-        document.getElementById('overlay').classList.add('hidden');
-        
-        const audio = document.getElementById('bg-music');
-        audio.volume = 0.3;
-        audio.play();
-    }
-</script>
 <div id="copy-toast">Skopiowano!</div>
 
 <div class="bento-grid">
@@ -194,6 +161,13 @@
 </div>
 
 <script>
+    function enterSite() {
+        document.getElementById('overlay').classList.add('hidden');
+        const audio = document.getElementById('bg-music');
+        audio.volume = 0.3;
+        audio.play().catch(e => console.log("Audio play error:", e));
+    }
+
     function copy(text) {
         navigator.clipboard.writeText(text).then(() => {
             const toast = document.getElementById('copy-toast');
