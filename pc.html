@@ -15,15 +15,13 @@
     
     <style>
         :root {
-            --tile-bg: rgba(0, 0, 0, 0.4);
+            --tile-bg: rgba(0, 0, 0, 0.5);
             --border: rgba(255, 255, 255, 0.1);
             --accent: #7000ff;
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            margin: 0; padding: 0; box-sizing: border-box;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
@@ -38,59 +36,45 @@
             overflow: hidden;
         }
 
+        /* Video Background */
         #bg-video {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
+            top: 50%; left: 50%;
+            min-width: 100%; min-height: 100%;
             z-index: -1;
-            transform: translateX(-50%) translateY(-50%);
+            transform: translate(-50%, -50%);
             object-fit: cover;
             filter: brightness(0.4);
         }
 
+        /* UI Elements */
         #mute-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
+            position: fixed; top: 20px; left: 20px;
             z-index: 10001;
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border);
-            color: white;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            color: white; width: 45px; height: 45px; border-radius: 50%;
+            cursor: pointer; backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center;
             transition: 0.3s;
         }
-
-        #mute-btn:hover { transform: scale(1.1); background: rgba(112, 0, 255, 0.2); }
+        #mute-btn:hover { transform: scale(1.1); background: var(--accent); }
 
         #overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; cursor: pointer;
             transition: opacity 0.8s ease;
         }
         #overlay.hidden { opacity: 0; pointer-events: none; }
 
+        /* Bento Grid */
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+            gap: 12px;
             max-width: 600px;
             width: 100%;
             z-index: 1;
@@ -98,52 +82,55 @@
 
         .tile {
             background: var(--tile-bg);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             transition: all 0.3s ease;
-            text-decoration: none;
-            color: white;
+            text-decoration: none; color: white;
         }
 
         .tile:hover {
             border-color: var(--accent);
             transform: translateY(-5px);
             background: rgba(112, 0, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(112, 0, 255, 0.2);
         }
 
-        .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; text-align: left; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
-        .big-tile { grid-column: span 2; grid-row: span 2; text-align: center; }
-        .small-tile { grid-column: span 2; text-align: center; }
+        .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; }
+        .big-tile { grid-column: span 2; grid-row: span 2; }
+        .small-tile { grid-column: span 2; }
         .icon-only { grid-column: span 1; font-size: 24px; }
 
+        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--accent); }
         h1 { font-size: 22px; font-weight: 800; }
-        p { color: #ccc; font-size: 14px; }
+        p { color: #aaa; font-size: 13px; }
         .tile-title { font-weight: 600; margin-top: 10px; }
 
         #copy-toast {
-            position: fixed;
-            top: 20px;
+            position: fixed; top: 20px; right: 20px;
             background: var(--accent);
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: bold;
-            transform: translateY(-100px);
-            transition: 0.5s;
+            padding: 12px 25px; border-radius: 50px;
+            font-weight: bold; transform: translateY(-150%);
+            transition: 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
             z-index: 10000;
         }
         #copy-toast.active { transform: translateY(0); }
+
+        /* Mobile Fix */
+        @media (max-width: 480px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .profile-tile { grid-column: span 2; }
+            .icon-only { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
 
-<video autoplay muted loop playsinline id="bg-video">
+<video muted loop playsinline id="bg-video">
     <source src="bg.mp4" type="video/mp4">
 </video>
 
@@ -152,14 +139,14 @@
 </button>
 
 <div id="overlay" onclick="enterSite()">
-    <div style="font-family: sans-serif; letter-spacing: 3px; color: white;">[ KLIKNIJ, ABY WEJŚĆ ]</div>
+    <div style="font-family: sans-serif; letter-spacing: 4px; font-size: 12px;">[ KLIKNIJ, ABY WEJŚĆ ]</div>
 </div>
 
 <audio id="bg-music" loop>
     <source src="background.mp3" type="audio/mpeg">
 </audio>
 
-<div id="copy-toast">Skopiowano!</div>
+<div id="copy-toast">📋 Skopiowano nick!</div>
 
 <div class="bento-grid">
     <div class="tile profile-tile">
@@ -170,49 +157,45 @@
         </div>
     </div>
 
-    <a href="https://youtube.com/@Pvblosiu" target="_self" class="tile big-tile">
+    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile big-tile">
         <i class="fab fa-youtube" style="font-size: 40px; color: #ff0000;"></i>
         <div class="tile-title">YouTube</div>
-        <p>Mój Kanał w serwisie YT</p>
+        <p>Mój Kanał YT</p>
     </a>
 
-    <a href="https://steamcommunity.com/id/pablosiu/" target="_self" class="tile small-tile">
+    <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="tile small-tile">
         <i class="fab fa-steam"></i>
         <span class="tile-title">Steam</span>
     </a>
 
     <div class="tile small-tile" style="cursor: pointer;" onclick="copy('pablosiu_')">
-        <i class="fab fa-discord"></i>
-        <span class="tile-title">Kontakt - Discord</span>
-        <p>Kliknij, aby skopiować mój nick</p>
+        <i class="fab fa-discord" style="color: #5865F2;"></i>
+        <span class="tile-title">Discord</span>
+        <p>Kliknij, aby skopiować</p>
     </div>
 
-    <a href="https://x.com/pablosiu_" target="_self" class="tile icon-only"><i class="fab fa-twitter"></i></a>
-    <a href="https://github.com/itspablosiu" target="_self" class="tile icon-only"><i class="fab fa-github"></i></a>
-    <a href="https://twitch.tv/WcaleNieAzile" target="_self" class="tile icon-only"><i class="fab fa-twitch"></i></a>
-    <a href="https://instagram.com/pablositt0" target="_self" class="tile icon-only"><i class="fab fa-instagram"></i></a>
+    <a href="https://x.com/pablosiu_" target="_blank" class="tile icon-only"><i class="fab fa-x-twitter"></i></a>
+    <a href="https://github.com/itspablosiu" target="_blank" class="tile icon-only"><i class="fab fa-github"></i></a>
+    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile icon-only"><i class="fab fa-twitch" style="color: #9146FF;"></i></a>
+    <a href="https://instagram.com/pablositt0" target="_blank" class="tile icon-only"><i class="fab fa-instagram"></i></a>
 </div>
 
 <script>
-    // PRZEKIEROWANIE NA ANDROIDA/IOS
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        window.location.href = "phone.html"; // Upewnij się, że plik mobilny tak się nazywa!
-    }
-
     function enterSite() {
         document.getElementById('overlay').classList.add('hidden');
         const audio = document.getElementById('bg-music');
+        const video = document.getElementById('bg-video');
+        
         audio.volume = 0.3;
-        audio.play().catch(e => console.log("Audio error:", e));
-        document.getElementById('bg-video').play();
+        audio.play().catch(err => console.log("Dźwięk zablokowany przez przeglądarkę"));
+        video.play();
     }
 
     function toggleMute() {
         const audio = document.getElementById('bg-music');
         const icon = document.getElementById('mute-icon');
         audio.muted = !audio.muted;
-        icon.classList.toggle('fa-volume-mute');
-        icon.classList.toggle('fa-volume-up');
+        icon.className = audio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
     }
 
     function copy(text) {
