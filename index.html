@@ -32,7 +32,6 @@
             overflow: hidden;
         }
 
-        /* Tło Wideo - musi być muted dla autoplayerów */
         #bg-video {
             position: fixed;
             top: 50%; left: 50%;
@@ -43,7 +42,6 @@
             filter: brightness(0.4);
         }
 
-        /* Nakładka wejścia */
         #overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -54,7 +52,6 @@
         }
         #overlay.hidden { opacity: 0; pointer-events: none; }
 
-        /* Przycisk wyciszenia */
         #mute-btn {
             position: fixed; top: 20px; left: 20px;
             z-index: 1001;
@@ -65,7 +62,6 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Bento Grid */
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -99,11 +95,34 @@
         .small-tile { grid-column: span 2; }
         .icon-only { grid-column: span 1; font-size: 24px; }
 
-        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--accent); }
+        .avatar-wrapper { position: relative; width: 70px; height: 70px; }
+        .avatar { width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); }
+        
+        #status-dot {
+            position: absolute; bottom: 2px; right: 2px;
+            width: 16px; height: 16px;
+            border-radius: 50%; border: 3px solid #000;
+            background: #747f8d;
+        }
+
+        /* Spotify Card Style */
+        #spotify-card {
+            grid-column: span 4;
+            display: none;
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 15px;
+            border-color: rgba(30, 215, 96, 0.3);
+        }
+        #spotify-album { width: 55px; height: 55px; border-radius: 12px; }
+        .spotify-info { flex: 1; overflow: hidden; text-align: left; }
+        .spotify-label { font-size: 10px; font-weight: 800; color: #1DB954; text-transform: uppercase; margin-bottom: 4px; }
+        #spotify-track { font-size: 14px; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #spotify-artist { font-size: 12px; color: #aaa; }
+
         h1 { font-size: 22px; font-weight: 800; }
         p { color: #aaa; font-size: 13px; }
 
-        /* Styl napisu Pablosiu 2026 */
         .footer-glow {
             grid-column: span 4;
             text-align: center;
@@ -123,7 +142,6 @@
             to { text-shadow: 0 0 15px var(--accent), 0 0 25px var(--accent); transform: scale(1.05); opacity: 1; }
         }
 
-        /* Powiadomienie o kopiowaniu */
         #copy-toast {
             position: fixed; top: 20px; right: 20px;
             background: var(--accent);
@@ -134,10 +152,9 @@
         }
         #copy-toast.active { transform: translateY(0); }
 
-        /* Naprawa na telefony */
         @media (max-width: 480px) {
             .bento-grid { grid-template-columns: repeat(2, 1fr); }
-            .profile-tile, .footer-glow { grid-column: span 2; }
+            .profile-tile, .footer-glow, #spotify-card { grid-column: span 2; }
         }
     </style>
 </head>
@@ -159,14 +176,26 @@
     <div style="letter-spacing: 5px; font-size: 12px; text-transform: uppercase; font-weight: 600;">[ Kliknij, aby wejść ]</div>
 </div>
 
-<div id="copy-toast">?? Skopiowano nick!</div>
+<div id="copy-toast">📋 Skopiowano nick!</div>
 
 <div class="bento-grid">
     <div class="tile profile-tile">
-        <img src="avatar.png" class="avatar" alt="pablosiu">
+        <div class="avatar-wrapper">
+            <img src="avatar.png" class="avatar" id="discord-avatar" alt="pablosiu">
+            <div id="status-dot"></div>
+        </div>
         <div>
-            <h1>Pablosiu</h1>
-            <p>Gracz Roku, Nominowany do Orderów Debila Roku 2025</p>
+            <h1 id="discord-name">Pablosiu</h1>
+            <p id="discord-status">Gracz Roku, Nominowany do Orderów Debila Roku 2025</p>
+        </div>
+    </div>
+
+    <div id="spotify-card" class="tile">
+        <img id="spotify-album" src="">
+        <div class="spotify-info">
+            <div class="spotify-label"><i class="fab fa-spotify"></i> Słucham teraz</div>
+            <span id="spotify-track">Nazwa utworu</span>
+            <div id="spotify-artist">Wykonawca</div>
         </div>
     </div>
 
@@ -198,20 +227,12 @@
 <script>
     const audio = document.getElementById('bg-music');
     const video = document.getElementById('bg-video');
+    const DISCORD_ID = "789133178144030737";
 
     function enterSite() {
         document.getElementById('overlay').classList.add('hidden');
-        
-        // Próba odtworzenia muzyki
         audio.volume = 0.3;
-        let playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.log("Autoplay zablokowany, muzyka ruszy po toggle.");
-            });
-        }
-        
+        audio.play().catch(e => console.log("Autoplay blocked"));
         video.play();
     }
 
@@ -227,6 +248,33 @@
         toast.classList.add('active');
         setTimeout(() => toast.classList.remove('active'), 2000);
     }
+
+    async function fetchLanyard() {
+        try {
+            const response = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+            const { data } = await response.json();
+
+            const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
+            document.getElementById('status-dot').style.background = statusColors[data.discord_status];
+            
+            if (data.discord_user.avatar) {
+                document.getElementById('discord-avatar').src = `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.png`;
+            }
+
+            const spotifyCard = document.getElementById('spotify-card');
+            if (data.listening_to_spotify && data.spotify) {
+                spotifyCard.style.display = 'flex';
+                document.getElementById('spotify-track').innerText = data.spotify.track;
+                document.getElementById('spotify-artist').innerText = data.spotify.artist;
+                document.getElementById('spotify-album').src = data.spotify.album_art_url;
+            } else {
+                spotifyCard.style.display = 'none';
+            }
+        } catch (e) { console.error("Lanyard error:", e); }
+    }
+
+    setInterval(fetchLanyard, 10000);
+    fetchLanyard();
 </script>
 
 </body>
