@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pablosiu | bio</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -10,15 +10,16 @@
     
     <style>
         :root {
-            --tile-bg: rgba(255, 255, 255, 0.05);
+            --tile-bg: rgba(0, 0, 0, 0.55);
             --border: rgba(255, 255, 255, 0.1);
             --accent: #7000ff;
         }
 
         * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            -webkit-tap-highlight-color: transparent; /* Usuwa niebieski prostokąt przy klikaniu na tel */
         }
 
         body {
@@ -28,10 +29,10 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
-            padding: 20px;
+            overflow: hidden;
         }
 
+        /* Tło Wideo - musi być muted dla autoplayerów */
         #bg-video {
             position: fixed;
             top: 50%; left: 50%;
@@ -39,9 +40,10 @@
             z-index: -2;
             transform: translate(-50%, -50%);
             object-fit: cover;
-            filter: brightness(0.3);
+            filter: brightness(0.4);
         }
 
+        /* Nakładka wejścia */
         #overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -52,90 +54,90 @@
         }
         #overlay.hidden { opacity: 0; pointer-events: none; }
 
+        /* Przycisk wyciszenia */
         #mute-btn {
-            position: fixed; top: 15px; left: 15px;
+            position: fixed; top: 20px; left: 20px;
             z-index: 1001;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border);
-            color: white; width: 40px; height: 40px; border-radius: 50%;
+            color: white; width: 45px; height: 45px; border-radius: 50%;
             cursor: pointer; backdrop-filter: blur(10px);
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Bento Grid - Elastyczny układ */
+        /* Bento Grid */
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
-            max-width: 500px;
-            width: 100%;
+            max-width: 600px;
+            width: 90%;
             z-index: 1;
         }
 
         .tile {
             background: var(--tile-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 18px;
+            border-radius: 24px;
+            padding: 20px;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
-            transition: 0.3s ease;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none; color: white;
         }
 
-        .tile i { color: white !important; font-size: 22px; }
+        .tile:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            background: rgba(112, 0, 255, 0.15);
+        }
 
-        .tile:active { transform: scale(0.95); background: rgba(112, 0, 255, 0.2); }
-
-        /* Układ kafelków */
-        .profile-tile { grid-column: span 4; flex-direction: row; gap: 15px; justify-content: flex-start; }
-        .big-tile { grid-column: span 4; flex-direction: column; gap: 8px; }
+        .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; }
+        .big-tile { grid-column: span 2; grid-row: span 2; }
         .small-tile { grid-column: span 2; }
-        .icon-only { grid-column: span 1; padding: 15px; }
+        .icon-only { grid-column: span 1; font-size: 24px; }
 
-        .avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent); }
-        h1 { font-size: 20px; font-weight: 800; }
-        p { color: #aaa; font-size: 12px; }
+        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--accent); }
+        h1 { font-size: 22px; font-weight: 800; }
+        p { color: #aaa; font-size: 13px; }
 
+        /* Styl napisu Pablosiu 2026 */
         .footer-glow {
             grid-column: span 4;
             text-align: center;
-            margin-top: 20px;
-            font-size: 11px;
+            margin-top: 15px;
+            font-size: 13px;
             font-weight: 800;
             letter-spacing: 2px;
             text-transform: uppercase;
             color: white;
-            text-shadow: 0 0 10px var(--accent);
+            text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
             animation: pulseGlow 2s infinite alternate;
+            opacity: 0.8;
         }
 
         @keyframes pulseGlow {
-            from { opacity: 0.5; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1.02); }
+            from { text-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent); transform: scale(1); opacity: 0.6; }
+            to { text-shadow: 0 0 15px var(--accent), 0 0 25px var(--accent); transform: scale(1.05); opacity: 1; }
         }
 
+        /* Powiadomienie o kopiowaniu */
         #copy-toast {
-            position: fixed; bottom: 30px; left: 50%;
-            transform: translateX(-50%) translateY(100px);
+            position: fixed; top: 20px; right: 20px;
             background: var(--accent);
-            padding: 10px 20px; border-radius: 50px;
-            font-weight: bold; font-size: 14px;
-            transition: 0.5s; z-index: 10000;
+            padding: 12px 25px; border-radius: 50px;
+            font-weight: bold; transform: translateY(-150%);
+            transition: 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            z-index: 10000;
         }
-        #copy-toast.active { transform: translateX(-50%) translateY(0); }
+        #copy-toast.active { transform: translateY(0); }
 
-        /* MOBILE FIXES - Najważniejsza część */
+        /* Naprawa na telefony */
         @media (max-width: 480px) {
-            .bento-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
-            .profile-tile { padding: 15px; }
-            .avatar { width: 50px; height: 50px; }
-            .big-tile { grid-column: span 4; } /* YouTube na całą szerokość dla wygody */
-            .small-tile { grid-column: span 2; }
-            .icon-only { grid-column: span 1; }
-            h1 { font-size: 18px; }
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .profile-tile, .footer-glow { grid-column: span 2; }
         }
     </style>
 </head>
@@ -154,10 +156,10 @@
 </button>
 
 <div id="overlay" onclick="enterSite()">
-    <div style="letter-spacing: 3px; font-size: 10px; font-weight: 800;">[ DOTKNIJ, ABY WEJŚĆ ]</div>
+    <div style="letter-spacing: 5px; font-size: 12px; text-transform: uppercase; font-weight: 600;">[ Kliknij, aby wejść ]</div>
 </div>
 
-<div id="copy-toast">📋 Skopiowano nick!</div>
+<div id="copy-toast">?? Skopiowano nick!</div>
 
 <div class="bento-grid">
     <div class="tile profile-tile">
@@ -169,26 +171,29 @@
     </div>
 
     <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile big-tile">
-        <i class="fab fa-youtube" style="font-size: 30px !important;"></i>
-        <span style="font-weight:600;">YouTube</span>
+        <i class="fab fa-youtube" style="font-size: 40px; color: #ff0000;"></i>
+        <div style="font-weight:600; margin-top:10px;">YouTube</div>
+        <p>Mój kanał</p>
     </a>
 
     <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="tile small-tile">
-        <i class="fab fa-steam"></i>
-        <span style="font-weight:600; margin-top: 5px;">Steam</span>
+        <i class="fab fa-steam" style="font-size: 20px;"></i>
+        <span style="font-weight:600; margin-left:10px;">Steam</span>
     </a>
 
     <div class="tile small-tile" style="cursor: pointer;" onclick="copy('pablosiu_')">
-        <i class="fab fa-discord"></i>
-        <span style="font-weight:600; margin-top: 5px;">Discord</span>
+        <i class="fab fa-discord" style="color: #5865F2; font-size: 20px;"></i>
+        <span style="font-weight:600; margin-left:10px;">Discord</span>
     </div>
 
     <a href="https://x.com/pablosiu_" target="_blank" class="tile icon-only"><i class="fa-brands fa-x-twitter"></i></a>
     <a href="https://github.com/itspablosiu" target="_blank" class="tile icon-only"><i class="fab fa-github"></i></a>
-    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile icon-only"><i class="fab fa-twitch"></i></a>
+    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile icon-only"><i class="fab fa-twitch" style="color:#9146FF"></i></a>
     <a href="https://instagram.com/pablositt0" target="_blank" class="tile icon-only"><i class="fab fa-instagram"></i></a>
 
-    <div class="footer-glow">Pablosiu 2026</div>
+    <div class="footer-glow">
+        Pablosiu 2026
+    </div>
 </div>
 
 <script>
@@ -197,8 +202,17 @@
 
     function enterSite() {
         document.getElementById('overlay').classList.add('hidden');
+        
+        // Próba odtworzenia muzyki
         audio.volume = 0.3;
-        audio.play().catch(e => console.log("Audio ok"));
+        let playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Autoplay zablokowany, muzyka ruszy po toggle.");
+            });
+        }
+        
         video.play();
     }
 
