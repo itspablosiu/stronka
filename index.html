@@ -29,7 +29,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         #bg-video {
@@ -96,7 +96,7 @@
         .icon-only { grid-column: span 1; font-size: 24px; }
 
         .avatar-wrapper { position: relative; width: 70px; height: 70px; }
-        .avatar { width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); }
+        .avatar { width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
         
         #status-dot {
             position: absolute; bottom: 2px; right: 2px;
@@ -181,12 +181,12 @@
 <div class="bento-grid">
     <div class="tile profile-tile">
         <div class="avatar-wrapper">
-            <img src="avatar.png" class="avatar" id="discord-avatar" alt="pablosiu">
+            <img src="avatar.png" class="avatar" alt="pablosiu">
             <div id="status-dot"></div>
         </div>
         <div>
-            <h1 id="discord-name">Pablosiu</h1>
-            <p id="discord-status">Gracz Roku, Nominowany do Orderów Debila Roku 2025</p>
+            <h1>Pablosiu</h1>
+            <p>Gracz Roku, Nominowany do Orderów Debila Roku 2025</p>
         </div>
     </div>
 
@@ -254,13 +254,11 @@
             const response = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const { data } = await response.json();
 
+            // Tylko kropka statusu się aktualizuje
             const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
             document.getElementById('status-dot').style.background = statusColors[data.discord_status];
             
-            if (data.discord_user.avatar) {
-                document.getElementById('discord-avatar').src = `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.png`;
-            }
-
+            // Logika Spotify
             const spotifyCard = document.getElementById('spotify-card');
             if (data.listening_to_spotify && data.spotify) {
                 spotifyCard.style.display = 'flex';
