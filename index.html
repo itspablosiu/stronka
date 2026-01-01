@@ -3,170 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio | @pablosiu</title>
+    <title>pablosiu | Bio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #080808;
-            --tile-bg: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --accent: #7000ff; /* Fioletowy akcent */
+        /* --- STYL EKRANU STARTOWEGO --- */
+        #enter-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            cursor: pointer;
+            transition: opacity 0.8s ease, visibility 0.8s;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+        #enter-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
         }
 
+        .enter-text {
+            font-family: 'Inter', sans-serif;
+            color: white;
+            font-size: 1.2rem;
+            letter-spacing: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        /* --- STYL RESZTY STRONY --- */
         body {
-            background-color: var(--bg);
+            background: #050505;
             color: white;
+            font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
 
-        /* Główny układ siatki (Grid) */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: auto;
-            gap: 15px;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .tile {
-            background: var(--tile-bg);
-            border: 1px solid var(--border);
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
             border-radius: 20px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: white;
-        }
-
-        .tile:hover {
-            border-color: var(--accent);
-            background: rgba(112, 0, 255, 0.05);
-            transform: translateY(-5px);
-        }
-
-        /* Personalizacja kafelków */
-        .profile-tile {
-            grid-column: span 4; /* Na całą szerokość */
-            flex-direction: row;
-            gap: 20px;
-            justify-content: flex-start;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            width: 350px;
         }
 
         .avatar {
-            width: 80px;
-            height: 80px;
+            width: 100px; height: 100px;
             border-radius: 50%;
-            border: 2px solid var(--accent);
+            margin-bottom: 15px;
+            border: 2px solid white;
         }
 
-        .big-tile {
-            grid-column: span 2;
-            grid-row: span 2;
-            text-align: center;
-        }
-
-        .small-tile {
-            grid-column: span 2;
-        }
-
-        .icon-only {
-            grid-column: span 1;
-            font-size: 24px;
-        }
-
-        h1 { font-size: 22px; font-weight: 800; }
-        p { color: #888; font-size: 14px; }
-        
-        .tile-title {
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        /* Powiadomienie */
-        #copy-toast {
-            position: fixed;
-            top: 20px;
-            background: var(--accent);
-            padding: 10px 20px;
+        .link-btn {
+            display: block;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            margin: 10px 0;
             border-radius: 10px;
-            font-weight: bold;
-            transform: translateY(-100px);
-            transition: 0.5s;
+            transition: 0.3s;
         }
-        #copy-toast.active { transform: translateY(0); }
 
-        /* Responsywność dla telefonów */
-        @media (max-width: 480px) {
-            .bento-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .profile-tile { grid-column: span 2; }
-            .icon-only { grid-column: span 1; }
-        }
+        .link-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+        /* Ukryty odtwarzacz */
+        #bg-music { display: none; }
     </style>
 </head>
 <body>
 
-<div id="copy-toast">Skopiowano!</div>
+    <div id="enter-screen" onclick="startPage()">
+        <div class="enter-text">KLIKNIJ, ABY WEJŚĆ</div>
+    </div>
 
-<div class="bento-grid">
-    <div class="tile profile-tile">
-        <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=pablosiu" class="avatar" alt="me">
-        <div>
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        Twoja przeglądarka nie wspiera audio.
+    </audio>
+
+    <div class="container">
+        <div class="card">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=pablosiu" class="avatar">
             <h1>pablosiu</h1>
-            <p>Creative Developer & Designer</p>
+            <p style="color: #888; margin-bottom: 20px;">@pablosiu na wszystkich mediach</p>
+            
+            <a href="https://youtube.com" class="link-btn" target="_blank">YouTube</a>
+            <a href="https://instagram.com" class="link-btn" target="_blank">Instagram</a>
+            <div class="link-btn" style="cursor:pointer" onclick="alert('Skopiowano Discord!')">Discord</div>
         </div>
     </div>
 
-    <a href="https://youtube.com/@twojkanal" target="_blank" class="tile big-tile">
-        <i class="fab fa-youtube" style="font-size: 40px; color: #ff0000;"></i>
-        <div class="tile-title">YouTube</div>
-        <p>Subskrybuj po content</p>
-    </a>
-
-    <a href="https://instagram.com/pablosiu" target="_blank" class="tile small-tile">
-        <i class="fab fa-instagram"></i>
-        <span class="tile-title">Instagram</span>
-    </a>
-
-    <div class="tile small-tile" style="cursor: pointer;" onclick="copy('pablosiu#0000')">
-        <i class="fab fa-discord"></i>
-        <span class="tile-title">Discord</span>
-        <p>Kliknij, aby skopiować</p>
-    </div>
-
-    <a href="https://twitter.com" target="_blank" class="tile icon-only"><i class="fab fa-twitter"></i></a>
-    <a href="https://github.com" target="_blank" class="tile icon-only"><i class="fab fa-github"></i></a>
-    <a href="mailto:kontakt@pablosiu.pl" class="tile icon-only"><i class="fas fa-envelope"></i></a>
-    <a href="https://twitch.tv" target="_blank" class="tile icon-only"><i class="fab fa-twitch"></i></a>
-</div>
-
-<script>
-    function copy(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('copy-toast');
-            toast.classList.add('active');
-            setTimeout(() => toast.classList.remove('active'), 2000);
-        });
-    }
-</script>
+    <script>
+        function startPage() {
+            // Ukrywa ekran startowy
+            document.getElementById('enter-screen').classList.add('hidden');
+            
+            // Odpala muzykę
+            const music = document.getElementById('bg-music');
+            music.volume = 0.3; // Ustawienie głośności na 30%
+            music.play();
+        }
+    </script>
 
 </body>
 </html>
