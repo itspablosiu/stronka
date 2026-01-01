@@ -1,1 +1,1 @@
-https://guns.lol/pablosiu
+guns.lol is shit
