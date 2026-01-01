@@ -35,10 +35,10 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            overflow: hidden; /* Zapobiega skrolowaniu przez wideo */
+            overflow: hidden;
         }
 
-        /* STYL DLA WIDEO W TLE */
+        /* WIDEO W TLE */
         #bg-video {
             position: fixed;
             top: 50%;
@@ -50,7 +50,34 @@
             z-index: -1;
             transform: translateX(-50%) translateY(-50%);
             object-fit: cover;
-            filter: brightness(0.5); /* Przyciemnienie wideo */
+            filter: brightness(0.5);
+        }
+
+        /* PRZYCISK WYCISZANIA */
+        #mute-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        #mute-btn:hover {
+            transform: scale(1.1);
+            background: rgba(112, 0, 255, 0.2);
+            border-color: var(--accent);
         }
 
         /* Ekran startowy */
@@ -80,7 +107,7 @@
 
         .tile {
             background: var(--tile-bg);
-            backdrop-filter: blur(12px); /* Efekt rozmytego szkła */
+            backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border);
             border-radius: 24px;
@@ -106,101 +133,4 @@
         .avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
         .big-tile { grid-column: span 2; grid-row: span 2; }
         .small-tile { grid-column: span 2; }
-        .icon-only { grid-column: span 1; font-size: 24px; }
-
-        h1 { font-size: 22px; font-weight: 800; }
-        p { color: #ccc; font-size: 14px; }
-        .tile-title { font-weight: 600; margin-top: 10px; }
-
-        #copy-toast {
-            position: fixed;
-            top: 20px;
-            background: var(--accent);
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: bold;
-            transform: translateY(-100px);
-            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 10000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        #copy-toast.active { transform: translateY(0); }
-
-        @media (max-width: 480px) {
-            .bento-grid { grid-template-columns: repeat(2, 1fr); }
-            .profile-tile { grid-column: span 2; }
-        }
-    </style>
-</head>
-<body>
-
-<video autoplay muted loop playsinline id="bg-video">
-    <source src="bg.mp4" type="video/mp4">
-</video>
-
-<div id="overlay" onclick="enterSite()">
-    [ KLIKNIJ, ABY WEJŚĆ ]
-</div>
-
-<audio id="bg-music" loop>
-    <source src="background.mp3" type="audio/mpeg">
-</audio>
-
-<div id="copy-toast">Skopiowano!</div>
-
-<div class="bento-grid">
-    <div class="tile profile-tile">
-        <img src="avatar.png" class="avatar" alt="me">
-        <div>
-            <h1>Pablosiu</h1>
-            <p>Ja nie jestem Snax</p>
-        </div>
-    </div>
-
-    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile big-tile">
-        <i class="fab fa-youtube" style="font-size: 40px; color: #ff0000;"></i>
-        <div class="tile-title">YouTube</div>
-        <p>I tak nic nie wrzucam</p>
-    </a>
-
-    <a href="https://instagram.com/pablositt0" target="_blank" class="tile small-tile">
-        <i class="fab fa-instagram"></i>
-        <span class="tile-title">Instagram</span>
-    </a>
-
-    <div class="tile small-tile" style="cursor: pointer;" onclick="copy('pablosiu_')">
-        <i class="fab fa-discord"></i>
-        <span class="tile-title">Discord</span>
-        <p>Kliknij, aby skopiować</p>
-    </div>
-
-    <a href="https://x.com/pablosiu_" target="_blank" class="tile icon-only"><i class="fab fa-twitter"></i></a>
-    <a href="https://github.com/itspablosiu" target="_blank" class="tile icon-only"><i class="fab fa-github"></i></a>
-    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile icon-only"><i class="fab fa-twitch"></i></a>
-</div>
-
-<script>
-    function enterSite() {
-        document.getElementById('overlay').classList.add('hidden');
-        
-        // Start muzyki
-        const audio = document.getElementById('bg-music');
-        audio.volume = 0.3;
-        audio.play().catch(e => console.log("Audio play error:", e));
-        
-        // Upewnienie się, że wideo gra (niektóre przeglądarki blokują nawet muted video bez interakcji)
-        const video = document.getElementById('bg-video');
-        video.play();
-    }
-
-    function copy(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('copy-toast');
-            toast.classList.add('active');
-            setTimeout(() => toast.classList.remove('active'), 2000);
-        });
-    }
-</script>
-
-</body>
-</html>
+        .icon-only { grid-column: span 1; font-size: 24px
