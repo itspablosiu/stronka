@@ -15,8 +15,7 @@
     
     <style>
         :root {
-            --bg: #080808;
-            --tile-bg: rgba(0, 0, 0, 0.6); /* Przyciemnione kafelki dla lepszej widoczności na GIFie */
+            --tile-bg: rgba(0, 0, 0, 0.4);
             --border: rgba(255, 255, 255, 0.1);
             --accent: #7000ff;
         }
@@ -29,16 +28,29 @@
         }
 
         body {
-            /* TUTAJ ZMIEŃ LINK DO SWOJEGO GIF-A */
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                        url('bg.mp4') no-repeat center center fixed;
-            background-size: cover;
+            background-color: #000;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            overflow: hidden; /* Zapobiega skrolowaniu przez wideo */
+        }
+
+        /* STYL DLA WIDEO W TLE */
+        #bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            transform: translateX(-50%) translateY(-50%);
+            object-fit: cover;
+            filter: brightness(0.5); /* Przyciemnienie wideo */
         }
 
         /* Ekran startowy */
@@ -68,15 +80,16 @@
 
         .tile {
             background: var(--tile-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px); /* Efekt rozmytego szkła */
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             color: white;
             text-align: center;
@@ -86,10 +99,11 @@
             border-color: var(--accent);
             transform: translateY(-5px);
             background: rgba(112, 0, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(112, 0, 255, 0.2);
         }
 
         .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; text-align: left; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
         .big-tile { grid-column: span 2; grid-row: span 2; }
         .small-tile { grid-column: span 2; }
         .icon-only { grid-column: span 1; font-size: 24px; }
@@ -102,12 +116,13 @@
             position: fixed;
             top: 20px;
             background: var(--accent);
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 10px 25px;
+            border-radius: 50px;
             font-weight: bold;
             transform: translateY(-100px);
-            transition: 0.5s;
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 10000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         #copy-toast.active { transform: translateY(0); }
 
@@ -118,6 +133,10 @@
     </style>
 </head>
 <body>
+
+<video autoplay muted loop playsinline id="bg-video">
+    <source src="bg.mp4" type="video/mp4">
+</video>
 
 <div id="overlay" onclick="enterSite()">
     [ KLIKNIJ, ABY WEJŚĆ ]
@@ -163,9 +182,15 @@
 <script>
     function enterSite() {
         document.getElementById('overlay').classList.add('hidden');
+        
+        // Start muzyki
         const audio = document.getElementById('bg-music');
         audio.volume = 0.3;
         audio.play().catch(e => console.log("Audio play error:", e));
+        
+        // Upewnienie się, że wideo gra (niektóre przeglądarki blokują nawet muted video bez interakcji)
+        const video = document.getElementById('bg-video');
+        video.play();
     }
 
     function copy(text) {
