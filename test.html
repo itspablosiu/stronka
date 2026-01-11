@@ -10,10 +10,10 @@
     
     <style>
         :root {
-            --tile-bg: rgba(0, 0, 0, 0.55);
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-tile: rgba(15, 15, 15, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
             --accent: #7000ff;
-            --spotify: #1DB954;
+            --spotify-green: #1DB954;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -22,10 +22,10 @@
             background-color: #000;
             color: white;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            min-height: 150vh; /* Pozwala na testowanie scrolla */
-            padding-top: 15vh;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         #bg-video {
@@ -40,104 +40,95 @@
 
         #overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            inset: 0;
             background: #000;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999; cursor: pointer;
-            transition: opacity 1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+            transition: opacity 0.8s ease;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-size: 14px;
         }
         #overlay.hidden { opacity: 0; pointer-events: none; }
 
-        /* SIATKA BENTO */
-        .bento-grid {
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 90%;
+            max-width: 600px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
-            max-width: 600px;
-            width: 95%;
-            z-index: 1;
+            padding: 20px 0;
         }
 
-        /* KAFELKI - BAZA I ANIMACJA */
         .tile {
-            background: var(--tile-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: var(--bg-tile);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 20px;
+            border-radius: 24px;
             display: flex;
+            align-items: center;
             text-decoration: none;
             color: white;
-            opacity: 0; /* Ukryte do startu animacji */
-            transform: translateY(20px);
-            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease;
-        }
-
-        .tile.reveal {
-            opacity: 1;
-            transform: translateY(0);
+            transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
         .tile:hover {
+            transform: translateY(-4px);
             border-color: var(--accent);
-            transform: translateY(-5px) !important;
         }
 
-        /* UKŁAD POZIOMY DLA PROFILU I SPOTIFY */
-        .profile-tile, .spotify-tile {
+        /* SZEROKIE KAFELKI (Profil, Spotify, YouTube) */
+        .wide {
             grid-column: span 4;
-            flex-direction: row; /* Wymuszenie poziomu */
-            align-items: center;
+            padding: 20px 25px;
             justify-content: flex-start;
-            gap: 25px;
+            gap: 20px;
         }
 
-        .avatar {
-            width: 100px;
-            height: 100px;
+        .profile img {
+            width: 80px; height: 80px;
             border-radius: 50%;
-            border: 4px solid #747f8d;
+            border: 3px solid #555;
             object-fit: cover;
-            flex-shrink: 0;
+        }
+        .profile h1 { font-size: 26px; font-weight: 800; }
+
+        #spotify-tile { display: none; flex-direction: column; align-items: flex-start; border-left: 4px solid var(--spotify-green); }
+        .spotify-info { display: flex; align-items: center; gap: 15px; width: 100%; }
+        .spotify-info img { width: 50px; height: 50px; border-radius: 10px; }
+        .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+        #progress-fill { width: 0%; height: 100%; background: var(--spotify-green); }
+
+        .youtube-tile { gap: 15px; }
+        .youtube-tile i { font-size: 30px; color: #ff0000; }
+        .youtube-tile span { font-weight: 700; font-size: 18px; }
+
+        /* ŚREDNIE KAFELKI (Steam, Discord) */
+        .medium {
+            grid-column: span 2;
+            height: 70px;
+            justify-content: center;
+            gap: 10px;
         }
 
-        h1 { font-size: 28px; font-weight: 800; }
-
-        /* SPOTIFY POZIOMO */
-        .spotify-tile {
-            display: none; /* Pokazywane przez JS */
-            border-left: 5px solid var(--spotify);
-            flex-direction: column; /* Kontener pionowy dla paska na dole */
-            align-items: flex-start;
+        /* MAŁE IKONY (Dolny rząd) */
+        .social-icon {
+            grid-column: span 1;
+            height: 70px;
+            justify-content: center;
+            font-size: 22px;
         }
-
-        .spotify-header {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-
-        #spotify-album { width: 60px; height: 60px; border-radius: 12px; }
-        
-        .spotify-info h2 { font-size: 16px; margin-bottom: 2px; }
-        .spotify-info p { font-size: 12px; color: var(--spotify); font-weight: 800; text-transform: uppercase; }
-
-        #spotify-progress-bg { width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px; }
-        #spotify-progress-fill { width: 0%; height: 100%; background: var(--spotify); border-radius: 10px; transition: width 0.5s linear; }
-
-        /* INNE KAFELKI */
-        .big-tile { grid-column: span 2; grid-row: span 2; flex-direction: column; justify-content: center; align-items: center; }
-        .small-tile { grid-column: span 2; flex-direction: row; align-items: center; justify-content: center; gap: 10px; }
-        .icon-only { grid-column: span 1; justify-content: center; align-items: center; font-size: 24px; }
 
         @media (max-width: 480px) {
-            .bento-grid { grid-template-columns: repeat(2, 1fr); }
-            .profile-tile, .spotify-tile { grid-column: span 2; gap: 15px; }
-            .avatar { width: 70px; height: 70px; }
-            h1 { font-size: 22px; }
+            .container { grid-template-columns: repeat(2, 1fr); }
+            .wide, .medium { grid-column: span 2; }
+            .social-icon { grid-column: span 1; }
         }
     </style>
 </head>
@@ -147,100 +138,95 @@
     <source src="bg.mp4" type="video/mp4">
 </video>
 
-<div id="overlay" onclick="enterSite()">
-    <div style="letter-spacing: 5px; font-size: 12px; text-transform: uppercase; font-weight: 600;">[ Kliknij ]</div>
+<audio id="bg-audio" loop>
+    <source src="background.mp3" type="audio/mpeg">
+</audio>
+
+<div id="overlay" onclick="startApp()">
+    [ Kliknij, aby wejść ]
 </div>
 
-<div class="bento-grid">
-    <div class="tile profile-tile">
-        <img src="avatar.png" id="discord-avatar" class="avatar">
+<div class="container">
+    <div class="tile wide profile">
+        <img src="avatar.png" id="avatar">
         <h1>Pablosiu</h1>
     </div>
 
-    <div id="spotify-tile" class="tile spotify-tile">
-        <div class="spotify-header">
-            <img id="spotify-album" src="">
-            <div class="spotify-info">
-                <p>Słucham teraz</p>
-                <h2 id="spotify-title">Tytuł...</h2>
-                <span id="spotify-artist" style="opacity: 0.7; font-size: 13px;">Artysta</span>
+    <div class="tile wide" id="spotify-tile">
+        <div class="spotify-info">
+            <img id="sp-cover" src="">
+            <div class="track-details">
+                <p style="font-size: 10px; color: var(--spotify-green); font-weight: 800;">SŁUCHAM TERAZ</p>
+                <h2 id="sp-title" style="font-size: 14px;">Tytuł</h2>
+                <span id="sp-artist" style="font-size: 12px; opacity: 0.6;">Artysta</span>
             </div>
         </div>
-        <div id="spotify-progress-bg"><div id="spotify-progress-fill"></div></div>
+        <div class="progress-bar"><div id="progress-fill"></div></div>
     </div>
 
-    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile big-tile">
-        <i class="fab fa-youtube" style="font-size: 45px; color:#FF0000"></i>
-        <span style="font-weight:800; margin-top:15px; font-size: 18px;">YouTube</span>
+    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile wide youtube-tile">
+        <i class="fab fa-youtube"></i>
+        <span>YouTube</span>
     </a>
 
-    <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="tile small-tile">
-        <i class="fab fa-steam" style="font-size: 22px; color:#66c0f4"></i>
-        <span style="font-weight:700;">Steam</span>
+    <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="tile medium">
+        <i class="fab fa-steam" style="color: #66c0f4;"></i>
+        <span style="font-weight: 700;">Steam</span>
     </a>
 
-    <div class="tile small-tile" style="cursor:pointer;" onclick="navigator.clipboard.writeText('pablosiu_')">
-        <i class="fab fa-discord" style="font-size: 22px; color:#5865F2"></i>
-        <span style="font-weight:700;">pablosiu_</span>
+    <div class="tile medium" style="cursor: pointer;" onclick="navigator.clipboard.writeText('pablosiu_')">
+        <i class="fab fa-discord" style="color: #5865F2;"></i>
+        <span style="font-weight: 700;">pablosiu_</span>
     </div>
 
-    <a href="#" class="tile icon-only"><i class="fa-brands fa-x-twitter"></i></a>
-    <a href="#" class="tile icon-only"><i class="fab fa-github"></i></a>
-    <a href="#" class="tile icon-only"><i class="fab fa-twitch" style="color:#9146FF"></i></a>
-    <a href="#" class="tile icon-only"><i class="fab fa-instagram" style="color:#E1306C"></i></a>
+    <a href="https://x.com/pablosiu_" target="_blank" class="tile social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+    <a href="https://github.com/itspablosiu" target="_blank" class="tile social-icon"><i class="fab fa-github"></i></a>
+    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile social-icon"><i class="fab fa-twitch" style="color: #a970ff;"></i></a>
+    <a href="https://instagram.com/pablositt0" target="_blank" class="tile social-icon"><i class="fab fa-instagram" style="color: #e4405f;"></i></a>
 </div>
 
 <script>
     const DISCORD_ID = "789133178144030737";
+    const audio = document.getElementById('bg-audio');
+    const video = document.getElementById('bg-video');
 
-    function enterSite() {
+    function startApp() {
         document.getElementById('overlay').classList.add('hidden');
-        document.getElementById('bg-video').play();
+        audio.volume = 0.3;
+        audio.play();
+        video.play();
     }
 
-    // --- OBSŁUGA POJAWIANIA SIĘ KAFELKÓW ---
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('reveal');
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.tile').forEach(t => observer.observe(t));
-
-    // --- LANYARD DATA ---
-    async function updateLanyard() {
+    async function fetchLanyard() {
         try {
-            const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-            const { data } = await res.json();
+            const response = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+            const { data } = await response.json();
 
-            // Avatar i status
-            const avatarImg = document.getElementById('discord-avatar');
+            const avatar = document.getElementById('avatar');
             const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
             
             if (data.discord_user.avatar) {
                 const ext = data.discord_user.avatar.startsWith('a_') ? 'gif' : 'png';
-                avatarImg.src = `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.${ext}?size=256`;
+                avatar.src = `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.${ext}?size=256`;
             }
-            avatarImg.style.borderColor = statusColors[data.discord_status] || statusColors.offline;
+            avatar.style.borderColor = statusColors[data.discord_status] || statusColors.offline;
 
-            // Spotify
-            const spotifyTile = document.getElementById('spotify-tile');
+            const spTile = document.getElementById('spotify-tile');
             if (data.listening_to_spotify) {
-                spotifyTile.style.display = 'flex';
-                document.getElementById('spotify-title').innerText = data.spotify.track;
-                document.getElementById('spotify-artist').innerText = data.spotify.artist;
-                document.getElementById('spotify-album').src = data.spotify.album_art_url;
-                
-                const progress = ((Date.now() - data.spotify.timestamps.start) / (data.spotify.timestamps.end - data.spotify.timestamps.start)) * 100;
-                document.getElementById('spotify-progress-fill').style.width = Math.min(progress, 100) + "%";
+                spTile.style.display = 'flex';
+                document.getElementById('sp-title').innerText = data.spotify.track;
+                document.getElementById('sp-artist').innerText = data.spotify.artist;
+                document.getElementById('sp-cover').src = data.spotify.album_art_url;
+                const prog = ((Date.now() - data.spotify.timestamps.start) / (data.spotify.timestamps.end - data.spotify.timestamps.start)) * 100;
+                document.getElementById('progress-fill').style.width = Math.min(prog, 100) + "%";
             } else {
-                spotifyTile.style.display = 'none';
+                spTile.style.display = 'none';
             }
-        } catch (e) {}
+        } catch (err) {}
     }
 
-    setInterval(updateLanyard, 1000);
-    updateLanyard();
+    setInterval(fetchLanyard, 1000);
+    fetchLanyard();
 </script>
 
 </body>
