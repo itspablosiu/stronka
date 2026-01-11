@@ -90,7 +90,6 @@
 
         .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; }
         
-        /* Styl Spotify */
         .spotify-tile { 
             grid-column: span 4; 
             display: none; 
@@ -111,7 +110,7 @@
         .small-tile { grid-column: span 2; flex-direction: row; gap: 10px; }
         .icon-only { grid-column: span 1; font-size: 24px; }
 
-        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #747f8d; transition: 0.5s; }
+        .avatar { width: 75px; height: 75px; border-radius: 50%; border: 3px solid #747f8d; transition: border-color 0.5s ease; object-fit: cover; }
         h1 { font-size: 22px; font-weight: 800; }
         
         #spotify-album { width: 55px; height: 55px; border-radius: 10px; flex-shrink: 0; }
@@ -171,7 +170,7 @@
             <img src="avatar.png" id="discord-avatar" class="avatar" alt="pablosiu">
         </div>
         <div>
-            <h1>Pablosiu</h1>
+            <h1 id="discord-name">Pablosiu</h1>
             <p id="discord-status-text">Gracz Roku • 2026</p>
         </div>
     </div>
@@ -181,7 +180,7 @@
             <img id="spotify-album" src="" alt="">
             <div class="spotify-info">
                 <p><i class="fab fa-spotify"></i> SŁUCHAM TERAZ</p>
-                <h2 id="spotify-title">Ładowanie utworu...</h2>
+                <h2 id="spotify-title">Ładowanie...</h2>
                 <span id="spotify-artist" style="font-size: 12px; opacity: 0.8;">Artysta</span>
             </div>
         </div>
@@ -242,11 +241,20 @@
             const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const { data } = await res.json();
 
-            // Status na awatarze
+            // 1. DYNAMICZNY AVATAR I STATUS
+            const avatarImg = document.getElementById('discord-avatar');
             const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
-            document.getElementById('discord-avatar').style.borderColor = statusColors[data.discord_status] || statusColors.offline;
+            
+            // Pobieranie avatara z Discorda
+            if (data.discord_user.avatar) {
+                const extension = data.discord_user.avatar.startsWith('a_') ? 'gif' : 'png';
+                avatarImg.src = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.${extension}?size=256`;
+            }
+            
+            // Kolor ramki statusu
+            avatarImg.style.borderColor = statusColors[data.discord_status] || statusColors.offline;
 
-            // Logika Spotify
+            // 2. SPOTIFY
             const spotifyTile = document.getElementById('spotify-tile');
             if (data.listening_to_spotify && data.spotify) {
                 spotifyTile.style.display = 'flex';
@@ -254,7 +262,6 @@
                 document.getElementById('spotify-artist').innerText = data.spotify.artist;
                 document.getElementById('spotify-album').src = data.spotify.album_art_url;
 
-                // Pasek postępu
                 const start = data.spotify.timestamps.start;
                 const end = data.spotify.timestamps.end;
                 const now = Date.now();
@@ -268,7 +275,7 @@
         }
     }
 
-    setInterval(updateLanyard, 1000); // Częstsze odświeżanie dla płynności paska
+    setInterval(updateLanyard, 1000);
     updateLanyard();
 </script>
 
