@@ -1,55 +1,253 @@
-<div id="spotify-tile" class="tile big-tile" style="display: none; align-items: flex-start; text-align: left;">
-    <div style="display: flex; gap: 15px; align-items: center; width: 100%;">
-        <img id="spotify-album" src="" style="width: 60px; height: 60px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
-        <div style="overflow: hidden;">
-            <p style="color: #1DB954; font-weight: 800; font-size: 10px; text-transform: uppercase; margin: 0;">Słucham teraz</p>
-            <h2 id="spotify-title" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Utwór</h2>
-            <p id="spotify-artist" style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Wykonawca</p>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pablosiu | bio</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --tile-bg: rgba(0, 0, 0, 0.55);
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #7000ff;
+            --spotify: #1DB954;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background-color: #000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #bg-video {
+            position: fixed;
+            top: 50%; left: 50%;
+            min-width: 100%; min-height: 100%;
+            z-index: -2;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            filter: brightness(0.4);
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; cursor: pointer;
+            transition: opacity 1s ease;
+        }
+        #overlay.hidden { opacity: 0; pointer-events: none; }
+
+        #mute-btn {
+            position: fixed; top: 20px; left: 20px;
+            z-index: 1001;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            color: white; width: 45px; height: 45px; border-radius: 50%;
+            cursor: pointer; backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 600px;
+            width: 90%;
+            z-index: 1;
+            padding: 20px 0;
+        }
+
+        .tile {
+            background: var(--tile-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none; color: white;
+        }
+
+        .tile:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            background: rgba(112, 0, 255, 0.15);
+        }
+
+        /* Klasy układu */
+        .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; }
+        .spotify-tile { grid-column: span 4; flex-direction: row; justify-content: flex-start; gap: 15px; display: none; border-left: 4px solid var(--spotify); }
+        .big-tile { grid-column: span 2; grid-row: span 2; }
+        .small-tile { grid-column: span 2; flex-direction: row; gap: 10px; }
+        .icon-only { grid-column: span 1; font-size: 24px; }
+
+        .avatar-container { position: relative; }
+        .avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #747f8d; transition: 0.5s; }
+        
+        h1 { font-size: 22px; font-weight: 800; }
+        p { color: #aaa; font-size: 13px; }
+
+        #spotify-album { width: 50px; height: 50px; border-radius: 10px; }
+        .spotify-info h2 { font-size: 14px; margin: 0; }
+        .spotify-info p { font-size: 12px; color: var(--spotify); font-weight: bold; }
+
+        .footer-glow {
+            grid-column: span 4;
+            text-align: center;
+            margin-top: 15px; font-size: 13px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: white; text-shadow: 0 0 10px var(--accent);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { opacity: 0.6; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.05); }
+        }
+
+        #copy-toast {
+            position: fixed; top: 20px; right: 20px;
+            background: var(--accent);
+            padding: 12px 25px; border-radius: 50px;
+            font-weight: bold; transform: translateY(-150%);
+            transition: 0.5s; z-index: 10000;
+        }
+        #copy-toast.active { transform: translateY(0); }
+
+        @media (max-width: 480px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .profile-tile, .spotify-tile, .footer-glow { grid-column: span 2; }
+        }
+    </style>
+</head>
+<body>
+
+<video id="bg-video" loop muted playsinline>
+    <source src="bg.mp4" type="video/mp4">
+</video>
+
+<audio id="bg-music" loop>
+    <source src="background.mp3" type="audio/mpeg">
+</audio>
+
+<button id="mute-btn" onclick="toggleMute()">
+    <i id="mute-icon" class="fas fa-volume-up"></i>
+</button>
+
+<div id="overlay" onclick="enterSite()">
+    <div style="letter-spacing: 5px; font-size: 12px; text-transform: uppercase; font-weight: 600;">[ Kliknij, aby wejść ]</div>
+</div>
+
+<div id="copy-toast">Skopiowano!</div>
+
+<div class="bento-grid">
+    <div class="tile profile-tile">
+        <div class="avatar-container">
+            <img src="avatar.png" id="discord-avatar" class="avatar" alt="pablosiu">
+        </div>
+        <div>
+            <h1>Pablosiu</h1>
+            <p id="discord-status-text">Gracz Roku • 2026</p>
         </div>
     </div>
-    <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 15px;">
-        <div id="spotify-progress" style="width: 0%; height: 100%; background: #1DB954; border-radius: 2px; transition: width 1s linear;"></div>
+
+    <div id="spotify-tile" class="tile spotify-tile">
+        <img id="spotify-album" src="" alt="Album Art">
+        <div class="spotify-info">
+            <p><i class="fab fa-spotify"></i> SŁUCHAM TERAZ</p>
+            <h2 id="spotify-title">Tytuł utworu</h2>
+            <span id="spotify-artist" style="font-size: 11px; opacity: 0.8;">Artysta</span>
+        </div>
     </div>
+
+    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile big-tile">
+        <i class="fab fa-youtube" style="font-size: 40px; color:#FF0000"></i>
+        <div style="font-weight:600; margin-top:10px;">YouTube</div>
+    </a>
+
+    <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="tile small-tile">
+        <i class="fab fa-steam" style="font-size: 20px; color:#66c0f4"></i>
+        <span style="font-weight:600;">Steam</span>
+    </a>
+
+    <div class="tile small-tile" style="cursor: pointer;" onclick="copy('pablosiu_')">
+        <i class="fab fa-discord" style="font-size: 20px; color:#5865F2"></i>
+        <span style="font-weight:600;">pablosiu_</span>
+    </div>
+
+    <a href="https://x.com/pablosiu_" target="_blank" class="tile icon-only"><i class="fa-brands fa-x-twitter"></i></a>
+    <a href="https://github.com/itspablosiu" target="_blank" class="tile icon-only"><i class="fab fa-github"></i></a>
+    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile icon-only"><i class="fab fa-twitch" style="color:#9146FF"></i></a>
+    <a href="https://instagram.com/pablositt0" target="_blank" class="tile icon-only"><i class="fab fa-instagram" style="color:#E1306C"></i></a>
+
+    <div class="footer-glow">Pablosiu 2026</div>
 </div>
 
 <script>
-    // TWOJE ID DISCORD - Zmień na swoje!
-    const DISCORD_ID = "TWÓJ_ID_DISCORD_TUTAJ"; 
+    const audio = document.getElementById('bg-music');
+    const video = document.getElementById('bg-video');
+    
+    // --- KONFIGURACJA DISCORD ---
+    const DISCORD_ID = "789133178144030737"; // WPISZ SWOJE ID TUTAJ
 
-    async function fetchStatus() {
-        try {
-            const response = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
-            const data = await response.json();
-            const status = data.data;
-
-            // 1. Obsługa Statusu Discord (Kropka na awatarze)
-            const avatarImg = document.querySelector('.avatar');
-            const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
-            avatarImg.style.borderColor = statusColors[status.discord_status] || statusColors.offline;
-
-            // 2. Obsługa Spotify
-            const spotifyTile = document.getElementById('spotify-tile');
-            if (status.listening_to_spotify) {
-                spotifyTile.style.display = 'flex';
-                document.getElementById('spotify-album').src = status.spotify.album_art_url;
-                document.getElementById('spotify-title').innerText = status.spotify.track;
-                document.getElementById('spotify-artist').innerText = status.spotify.artist;
-
-                // Obliczanie paska postępu
-                const start = status.spotify.timestamps.start;
-                const end = status.spotify.timestamps.end;
-                const now = Date.now();
-                const progress = ((now - start) / (end - start)) * 100;
-                document.getElementById('spotify-progress').style.width = Math.min(progress, 100) + "%";
-            } else {
-                spotifyTile.style.display = 'none'; // Ukryj jeśli nie słuchasz
-            }
-        } catch (err) {
-            console.error("Lanyard Error:", err);
-        }
+    function enterSite() {
+        document.getElementById('overlay').classList.add('hidden');
+        audio.volume = 0.3;
+        audio.play();
+        video.play();
     }
 
-    // Odświeżaj co 3 sekundy
-    setInterval(fetchStatus, 3000);
-    fetchStatus();
+    function toggleMute() {
+        audio.muted = !audio.muted;
+        document.getElementById('mute-icon').className = audio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+    }
+
+    function copy(text) {
+        navigator.clipboard.writeText(text);
+        const toast = document.getElementById('copy-toast');
+        toast.classList.add('active');
+        setTimeout(() => toast.classList.remove('active'), 2000);
+    }
+
+    // --- INTEGRACJA LANYARD (Status + Spotify) ---
+    async function updateLanyard() {
+        try {
+            const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+            const { data } = await res.json();
+
+            // Status Kolor
+            const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
+            document.getElementById('discord-avatar').style.borderColor = statusColors[data.discord_status];
+
+            // Spotify
+            const spotifyTile = document.getElementById('spotify-tile');
+            if (data.listening_to_spotify) {
+                spotifyTile.style.display = 'flex';
+                document.getElementById('spotify-album').src = data.spotify.album_art_url;
+                document.getElementById('spotify-title').textContent = data.spotify.track;
+                document.getElementById('spotify-artist').textContent = data.spotify.artist;
+            } else {
+                spotifyTile.style.display = 'none';
+            }
+        } catch (e) { console.error("Lanyard Error"); }
+    }
+
+    setInterval(updateLanyard, 3000);
+    updateLanyard();
 </script>
+
+</body>
+</html>
