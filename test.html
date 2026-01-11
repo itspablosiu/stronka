@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pablosiu | bio</title>
+    <title>pablosiu | dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --glass: rgba(10, 10, 10, 0.7);
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: rgba(0, 0, 0, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
             --accent: #7000ff;
-            --spotify: #1DB954;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -20,70 +19,81 @@
         body { 
             background: #000; 
             color: white; 
+            height: 100vh; 
             display: flex; 
+            flex-direction: column;
             justify-content: center; 
             align-items: center; 
-            height: 100vh; /* Sztywna wysokość okna */
             overflow: hidden; 
         }
 
-        #bg-video { position: fixed; inset: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3); }
+        #bg-video { position: fixed; inset: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.4); }
 
-        #overlay { 
-            position: fixed; inset: 0; background: #000; z-index: 1000; 
-            display: flex; justify-content: center; align-items: center; 
-            cursor: pointer; transition: 0.8s ease; text-transform: uppercase; letter-spacing: 2px;
-        }
-        #overlay.hidden { opacity: 0; pointer-events: none; }
-
-        /* GŁÓWNY KONTENER - ZOPTYMALIZOWANY POD 1366x768 */
-        .bento {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            width: 95%;
-            max-width: 580px;
+        /* NOWY UKŁAD: DASHBOARD */
+        .main-content {
             z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: -5vh; /* Przesunięcie do góry, by zrobić miejsce na pasek */
         }
 
-        .tile {
-            background: var(--glass);
+        /* GÓRNY PROFIL */
+        .header { text-align: center; }
+        .header img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 10px; box-shadow: 0 0 20px rgba(112, 0, 255, 0.3); }
+        .header h1 { font-size: 32px; font-weight: 800; }
+
+        /* ŚRODKOWE LINKI - HORYZONTALNE */
+        .nav-links { display: flex; gap: 15px; }
+        .nav-item {
+            background: var(--bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--border);
+            padding: 15px 30px;
             border-radius: 20px;
-            display: flex;
-            align-items: center;
             text-decoration: none;
             color: white;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
         }
-        .tile:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .nav-item:hover { border-color: var(--accent); background: rgba(112, 0, 255, 0.1); transform: translateY(-5px); }
 
-        /* PROFIL - ZMNIEJSZONY */
-        .profile { grid-column: span 4; padding: 15px 25px; gap: 20px; }
-        .profile img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #333; }
-        .profile h1 { font-size: 24px; font-weight: 800; }
+        /* DOLNE IKONY - MINIMAL */
+        .socials { display: flex; gap: 20px; margin-top: 10px; }
+        .socials a { color: white; opacity: 0.6; font-size: 22px; transition: 0.3s; }
+        .socials a:hover { opacity: 1; color: var(--accent); transform: scale(1.2); }
 
-        /* SPOTIFY - KOMPAKTOWY */
-        .spotify { grid-column: span 4; display: none; flex-direction: column; padding: 12px 20px; border-left: 3px solid var(--spotify); }
-        .sp-content { display: flex; align-items: center; gap: 12px; width: 100%; }
-        .sp-content img { width: 45px; height: 45px; border-radius: 8px; }
-        .sp-text h2 { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 350px; }
-        .sp-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
-        #progress { width: 0%; height: 100%; background: var(--spotify); }
-
-        /* ŚRODEK (YouTube / Steam / Discord) */
-        .mid { grid-column: span 2; height: 60px; justify-content: center; gap: 10px; font-weight: 700; font-size: 15px; }
-        .discord-wide { grid-column: span 4; height: 50px; justify-content: center; font-size: 14px; opacity: 0.8; cursor: pointer; }
-
-        /* DOLNE IKONY - 4 W RZĘDZIE */
-        .small { grid-column: span 1; height: 55px; justify-content: center; font-size: 20px; }
-
-        @media (max-width: 480px) {
-            .bento { grid-template-columns: repeat(2, 1fr); }
-            .profile, .spotify, .mid, .discord-wide { grid-column: span 2; }
-            .small { grid-column: span 1; }
+        /* PŁYWAJĄCY PASEK SPOTIFY (BOTTOM BAR) */
+        .spotify-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            min-width: 400px;
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 10px 25px;
+            display: none; /* Pokazywane przez JS */
+            align-items: center;
+            gap: 15px;
+            z-index: 10;
         }
+        .sp-img { width: 40px; height: 40px; border-radius: 50%; animation: rotate 10s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .sp-info { font-size: 13px; line-height: 1.2; }
+        .sp-info b { display: block; color: #1DB954; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+        #overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        #overlay.hidden { opacity: 0; pointer-events: none; }
+
     </style>
 </head>
 <body>
@@ -91,70 +101,73 @@
 <video id="bg-video" loop muted playsinline><source src="bg.mp4" type="video/mp4"></video>
 <audio id="bg-music" loop><source src="background.mp3" type="audio/mpeg"></audio>
 
-<div id="overlay" onclick="start()">[ Wejdź ]</div>
+<div id="overlay" onclick="start()">[ KLIKNIJ ABY WEJŚĆ ]</div>
 
-<div class="bento">
-    <div class="tile profile">
+<div class="main-content">
+    <div class="header">
         <img src="avatar.png" id="av">
         <h1>Pablosiu</h1>
     </div>
 
-    <div class="tile spotify" id="sp-card">
-        <div class="sp-content">
-            <img id="sp-img" src="">
-            <div class="sp-text">
-                <p style="color:var(--spotify); font-size:9px; font-weight:800; margin-bottom:1px;">SŁUCHAM TERAZ</p>
-                <h2 id="sp-title">...</h2>
-                <p id="sp-artist" style="font-size:11px; opacity:0.6;">...</p>
-            </div>
-        </div>
-        <div class="sp-bar"><div id="progress"></div></div>
+    <div class="nav-links">
+        <a href="https://youtube.com/@Pvblosiu" target="_blank" class="nav-item">
+            <i class="fab fa-youtube" style="color:#ff0000;"></i> YouTube
+        </a>
+        <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="nav-item">
+            <i class="fab fa-steam" style="color:#66c0f4;"></i> Steam
+        </a>
     </div>
 
-    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile mid">
-        <i class="fab fa-youtube" style="color:#ff0000;"></i> YouTube
-    </a>
-    <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="tile mid">
-        <i class="fab fa-steam" style="color:#66c0f4;"></i> Steam
-    </a>
-
-    <div class="tile discord-wide" onclick="copy()">
-        <i class="fab fa-discord" style="margin-right:8px; color:#5865F2;"></i> 
-        pablosiu_ <span style="margin-left:10px; font-size:10px; opacity:0.5;">(kliknij aby skopiować)</span>
+    <div class="socials">
+        <a href="https://x.com/pablosiu_" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="https://github.com/itspablosiu" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://twitch.tv/WcaleNieAzile" target="_blank"><i class="fab fa-twitch"></i></a>
+        <a href="https://instagram.com/pablositt0" target="_blank"><i class="fab fa-instagram"></i></a>
     </div>
+    
+    <p style="font-size: 12px; opacity: 0.4; margin-top: 10px; cursor: pointer;" onclick="navigator.clipboard.writeText('pablosiu_')">
+        discord: <b>pablosiu_</b>
+    </p>
+</div>
 
-    <a href="https://x.com/pablosiu_" target="_blank" class="tile small"><i class="fa-brands fa-x-twitter"></i></a>
-    <a href="https://github.com/itspablosiu" target="_blank" class="tile small"><i class="fab fa-github"></i></a>
-    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile small"><i class="fab fa-twitch" style="color:#a970ff;"></i></a>
-    <a href="https://instagram.com/pablositt0" target="_blank" class="tile small"><i class="fab fa-instagram" style="color:#e4405f;"></i></a>
+<div class="spotify-bar" id="sp-bar">
+    <img id="sp-img" class="sp-img" src="">
+    <div class="sp-info">
+        <b>Słucham teraz</b>
+        <span id="sp-title" style="font-weight: 700;">...</span><br>
+        <span id="sp-artist" style="opacity: 0.6;">...</span>
+    </div>
+    <i class="fab fa-spotify" style="color: #1DB954; margin-left: auto; font-size: 20px;"></i>
 </div>
 
 <script>
     const ID = "789133178144030737";
     function start() {
         document.getElementById('overlay').classList.add('hidden');
-        const m = document.getElementById('bg-music');
-        m.volume = 0.2; m.play();
+        document.getElementById('bg-music').volume = 0.2;
+        document.getElementById('bg-music').play();
         document.getElementById('bg-video').play();
     }
-    function copy() { navigator.clipboard.writeText('pablosiu_'); alert('Skopiowano!'); }
 
     async function update() {
         try {
             const r = await fetch(`https://api.lanyard.rest/v1/users/${ID}`);
             const { data } = await r.json();
-            const av = document.getElementById('av');
-            if(data.discord_user.avatar) av.src = `https://cdn.discordapp.com/avatars/${ID}/${data.discord_user.avatar}.${data.discord_user.avatar.startsWith('a_')?'gif':'png'}?size=256`;
             
-            const sp = document.getElementById('sp-card');
+            // Avatar status
+            const av = document.getElementById('av');
+            const colors = { online:'#43b581', idle:'#faa61a', dnd:'#f04747', offline:'#747f8d' };
+            if(data.discord_user.avatar) av.src = `https://cdn.discordapp.com/avatars/${ID}/${data.discord_user.avatar}.${data.discord_user.avatar.startsWith('a_')?'gif':'png'}?size=256`;
+            av.style.borderColor = colors[data.discord_status] || colors.offline;
+
+            // Spotify Bar
+            const bar = document.getElementById('sp-bar');
             if(data.listening_to_spotify) {
-                sp.style.display = 'flex';
+                bar.style.display = 'flex';
                 document.getElementById('sp-title').innerText = data.spotify.track;
                 document.getElementById('sp-artist').innerText = data.spotify.artist;
                 document.getElementById('sp-img').src = data.spotify.album_art_url;
-                const p = ((Date.now()-data.spotify.timestamps.start)/(data.spotify.timestamps.end-data.spotify.timestamps.start)*100);
-                document.getElementById('progress').style.width = Math.min(p, 100) + "%";
-            } else { sp.style.display = 'none'; }
+            } else { bar.style.display = 'none'; }
         } catch(e) {}
     }
     setInterval(update, 1000); update();
