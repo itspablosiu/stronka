@@ -79,6 +79,7 @@
             justify-content: center; align-items: center;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none; color: white;
+            overflow: hidden;
         }
 
         .tile:hover {
@@ -87,22 +88,33 @@
             background: rgba(112, 0, 255, 0.15);
         }
 
-        /* Klasy układu */
         .profile-tile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; }
-        .spotify-tile { grid-column: span 4; flex-direction: row; justify-content: flex-start; gap: 15px; display: none; border-left: 4px solid var(--spotify); }
+        
+        /* Styl Spotify */
+        .spotify-tile { 
+            grid-column: span 4; 
+            display: none; 
+            flex-direction: column; 
+            align-items: flex-start; 
+            gap: 10px; 
+            border-left: 4px solid var(--spotify);
+        }
+        .spotify-content { display: flex; align-items: center; gap: 15px; width: 100%; }
+        .spotify-info { overflow: hidden; }
+        .spotify-info h2 { font-size: 15px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .spotify-info p { font-size: 12px; color: var(--spotify); font-weight: bold; }
+        
+        #spotify-progress-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 5px; }
+        #spotify-progress-fill { width: 0%; height: 100%; background: var(--spotify); border-radius: 2px; transition: width 1s linear; }
+
         .big-tile { grid-column: span 2; grid-row: span 2; }
         .small-tile { grid-column: span 2; flex-direction: row; gap: 10px; }
         .icon-only { grid-column: span 1; font-size: 24px; }
 
-        .avatar-container { position: relative; }
         .avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #747f8d; transition: 0.5s; }
-        
         h1 { font-size: 22px; font-weight: 800; }
-        p { color: #aaa; font-size: 13px; }
-
-        #spotify-album { width: 50px; height: 50px; border-radius: 10px; }
-        .spotify-info h2 { font-size: 14px; margin: 0; }
-        .spotify-info p { font-size: 12px; color: var(--spotify); font-weight: bold; }
+        
+        #spotify-album { width: 55px; height: 55px; border-radius: 10px; flex-shrink: 0; }
 
         .footer-glow {
             grid-column: span 4;
@@ -165,11 +177,16 @@
     </div>
 
     <div id="spotify-tile" class="tile spotify-tile">
-        <img id="spotify-album" src="" alt="Album Art">
-        <div class="spotify-info">
-            <p><i class="fab fa-spotify"></i> SŁUCHAM TERAZ</p>
-            <h2 id="spotify-title">Tytuł utworu</h2>
-            <span id="spotify-artist" style="font-size: 11px; opacity: 0.8;">Artysta</span>
+        <div class="spotify-content">
+            <img id="spotify-album" src="" alt="">
+            <div class="spotify-info">
+                <p><i class="fab fa-spotify"></i> SŁUCHAM TERAZ</p>
+                <h2 id="spotify-title">Ładowanie utworu...</h2>
+                <span id="spotify-artist" style="font-size: 12px; opacity: 0.8;">Artysta</span>
+            </div>
+        </div>
+        <div id="spotify-progress-bg">
+            <div id="spotify-progress-fill"></div>
         </div>
     </div>
 
@@ -199,14 +216,12 @@
 <script>
     const audio = document.getElementById('bg-music');
     const video = document.getElementById('bg-video');
-    
-    // --- KONFIGURACJA DISCORD ---
-    const DISCORD_ID = "789133178144030737"; // WPISZ SWOJE ID TUTAJ
+    const DISCORD_ID = "789133178144030737"; 
 
     function enterSite() {
         document.getElementById('overlay').classList.add('hidden');
         audio.volume = 0.3;
-        audio.play();
+        audio.play().catch(() => {});
         video.play();
     }
 
@@ -222,30 +237,38 @@
         setTimeout(() => toast.classList.remove('active'), 2000);
     }
 
-    // --- INTEGRACJA LANYARD (Status + Spotify) ---
     async function updateLanyard() {
         try {
             const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const { data } = await res.json();
 
-            // Status Kolor
+            // Status na awatarze
             const statusColors = { online: '#43b581', idle: '#faa61a', dnd: '#f04747', offline: '#747f8d' };
-            document.getElementById('discord-avatar').style.borderColor = statusColors[data.discord_status];
+            document.getElementById('discord-avatar').style.borderColor = statusColors[data.discord_status] || statusColors.offline;
 
-            // Spotify
+            // Logika Spotify
             const spotifyTile = document.getElementById('spotify-tile');
-            if (data.listening_to_spotify) {
+            if (data.listening_to_spotify && data.spotify) {
                 spotifyTile.style.display = 'flex';
+                document.getElementById('spotify-title').innerText = data.spotify.track;
+                document.getElementById('spotify-artist').innerText = data.spotify.artist;
                 document.getElementById('spotify-album').src = data.spotify.album_art_url;
-                document.getElementById('spotify-title').textContent = data.spotify.track;
-                document.getElementById('spotify-artist').textContent = data.spotify.artist;
+
+                // Pasek postępu
+                const start = data.spotify.timestamps.start;
+                const end = data.spotify.timestamps.end;
+                const now = Date.now();
+                const progress = ((now - start) / (end - start)) * 100;
+                document.getElementById('spotify-progress-fill').style.width = Math.min(Math.max(progress, 0), 100) + "%";
             } else {
                 spotifyTile.style.display = 'none';
             }
-        } catch (e) { console.error("Lanyard Error"); }
+        } catch (e) {
+            console.error("Lanyard Error");
+        }
     }
 
-    setInterval(updateLanyard, 3000);
+    setInterval(updateLanyard, 1000); // Częstsze odświeżanie dla płynności paska
     updateLanyard();
 </script>
 
