@@ -3,74 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pablosiu | bio</title>
+    <title>pablosiu | crystal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --tile-bg: rgba(10, 10, 10, 0.7);
-            --border: rgba(255, 255, 255, 0.1);
-            --accent: #7000ff;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #bc13fe;
             --spotify: #1DB954;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: #000; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
-
-        #bg-video { position: fixed; top: 50%; left: 50%; min-width: 100%; min-height: 100%; z-index: -2; transform: translate(-50%, -50%); object-fit: cover; filter: brightness(0.3); }
-        #overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; cursor: pointer; transition: 0.8s; text-transform: uppercase; letter-spacing: 3px; font-size: 13px; }
-        #overlay.hidden { opacity: 0; pointer-events: none; }
-
-        .bento {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            width: 95%;
-            max-width: 600px;
-            z-index: 1;
+        
+        body { 
+            background: #050505; 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            overflow: hidden;
         }
 
-        .tile {
-            background: var(--tile-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
+        /* TŁO */
+        #bg-video { position: fixed; inset: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.2) blur(5px); }
+        
+        /* EKRAN WEJŚCIA - STYL MINIMALNY */
+        #overlay { 
+            position: fixed; inset: 0; background: #000; z-index: 1000; 
+            display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; transition: 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #overlay.hidden { opacity: 0; pointer-events: none; transform: scale(1.5); }
+
+        /* GŁÓWNY KONTENER - NOWY UKŁAD */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            width: 95%;
+            max-width: 550px;
             display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* PROFIL - TOTALNIE NOWY DESIGN */
+        .main-profile {
+            background: var(--glass);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            padding: 40px;
+            text-align: center;
+            transition: 0.5s;
+        }
+        .main-profile:hover { border-color: var(--accent); box-shadow: 0 0 50px rgba(188, 19, 254, 0.2); }
+
+        .avatar-container {
+            position: relative;
+            width: 140px; height: 140px;
+            margin: 0 auto 20px;
+        }
+        .avatar-container img {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 5px solid #1a1a1a;
+            position: relative;
+            z-index: 2;
+        }
+        .avatar-glow {
+            position: absolute; inset: -5px;
+            background: linear-gradient(45deg, var(--accent), #5000ff);
+            border-radius: 50%;
+            filter: blur(15px);
+            opacity: 0.5;
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.05); } 100% { opacity: 0.3; transform: scale(1); } }
+
+        .main-profile h1 { font-size: 38px; font-weight: 800; letter-spacing: -2px; background: linear-gradient(#fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* KAFELKI DOLNE - SIATKA 2x2 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            gap: 10px;
             text-decoration: none;
             color: white;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .card:hover { background: rgba(255,255,255,0.08); transform: scale(1.05); border-color: #fff; }
+        .card i { font-size: 30px; }
 
-        .tile:hover { transform: translateY(-5px); border-color: var(--accent); }
-
-        /* PROFIL - POZIOMY I CZYSTY */
-        .profile { grid-column: span 4; padding: 30px; gap: 25px; }
-        .profile img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #444; object-fit: cover; }
-        .profile h1 { font-size: 32px; font-weight: 800; }
-
-        /* SPOTIFY */
-        .spotify { grid-column: span 4; display: none; flex-direction: column; padding: 20px; border-left: 4px solid var(--spotify); }
-        .sp-top { display: flex; align-items: center; gap: 15px; width: 100%; }
-        .sp-top img { width: 55px; height: 55px; border-radius: 12px; }
-        .sp-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 15px; overflow: hidden; }
-        #progress { width: 0%; height: 100%; background: var(--spotify); }
-
-        /* ŚRODKOWE KAFELKI (YouTube i Steam obok siebie) */
-        .mid { grid-column: span 2; height: 80px; justify-content: center; gap: 12px; font-weight: 700; font-size: 18px; }
-
-        /* DISCORD - SZEROKI PASEK */
-        .discord-wide { grid-column: span 4; height: 70px; justify-content: center; gap: 12px; font-weight: 700; cursor: pointer; }
-
-        /* DOLNY RZĄD - 4 RÓWNE IKONY */
-        .small { grid-column: span 1; height: 70px; justify-content: center; font-size: 24px; }
-
-        @media (max-width: 480px) {
-            .bento { grid-template-columns: repeat(2, 1fr); }
-            .profile, .spotify, .mid, .discord-wide { grid-column: span 2; }
-            .small { grid-column: span 1; }
+        /* SPOTIFY - PŁYWAJĄCY PASEK */
+        #spotify {
+            grid-column: span 2;
+            flex-direction: row;
+            justify-content: flex-start;
+            padding: 15px 25px;
+            display: none;
         }
+        .sp-img { width: 50px; height: 50px; border-radius: 12px; margin-right: 15px; }
+
+        /* IKONY SPOŁECZNOŚCIOWE - NOWY PASEK */
+        .social-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .social-btn {
+            flex: 1;
+            height: 60px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .social-btn:hover { background: white; color: black; transform: translateY(-5px); }
+
     </style>
 </head>
 <body>
@@ -78,70 +150,74 @@
 <video id="bg-video" loop muted playsinline><source src="bg.mp4" type="video/mp4"></video>
 <audio id="bg-music" loop><source src="background.mp3" type="audio/mpeg"></audio>
 
-<div id="overlay" onclick="start()">Kliknij, aby wejść</div>
+<div id="overlay" onclick="launch()">
+    <span style="border: 1px solid rgba(255,255,255,0.3); padding: 15px 30px; border-radius: 50px;">ENTER EXPERIENCE</span>
+</div>
 
-<div class="bento">
-    <div class="tile profile">
-        <img src="avatar.png" id="av">
+<div class="wrapper">
+    <div class="main-profile">
+        <div class="avatar-container">
+            <div class="avatar-glow"></div>
+            <img src="avatar.png" id="av">
+        </div>
         <h1>Pablosiu</h1>
     </div>
 
-    <div class="tile spotify" id="sp-card">
-        <div class="sp-top">
-            <img id="sp-img" src="">
-            <div>
-                <p style="color:var(--spotify); font-size:10px; font-weight:800; margin-bottom:2px;">SŁUCHAM TERAZ</p>
-                <h2 id="sp-title" style="font-size:15px;">...</h2>
-                <p id="sp-artist" style="font-size:12px; opacity:0.6;">...</p>
-            </div>
+    <div class="card" id="spotify">
+        <img id="sp-img" class="sp-img" src="">
+        <div style="flex: 1;">
+            <p id="sp-track" style="font-weight: 800; font-size: 14px;">...</p>
+            <p id="sp-artist" style="opacity: 0.5; font-size: 12px;">...</p>
         </div>
-        <div class="sp-bar"><div id="progress"></div></div>
+        <i class="fab fa-spotify" style="color: var(--spotify); font-size: 20px;"></i>
     </div>
 
-    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="tile mid">
-        <i class="fab fa-youtube" style="color:#ff0000; font-size:24px;"></i> YouTube
-    </a>
-
-    <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="tile mid">
-        <i class="fab fa-steam" style="color:#66c0f4; font-size:24px;"></i> Steam
-    </a>
-
-    <div class="tile discord-wide" onclick="copy()">
-        <i class="fab fa-discord" style="color:#5865F2; font-size:24px;"></i> pablosiu_
+    <div class="grid">
+        <a href="https://youtube.com/@Pvblosiu" target="_blank" class="card">
+            <i class="fab fa-youtube" style="color: #ff0000;"></i>
+            <span style="font-weight: 700;">YouTube</span>
+        </a>
+        <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="card">
+            <i class="fab fa-steam" style="color: #00adee;"></i>
+            <span style="font-weight: 700;">Steam</span>
+        </a>
     </div>
 
-    <a href="https://x.com/pablosiu_" target="_blank" class="tile small"><i class="fa-brands fa-x-twitter"></i></a>
-    <a href="https://github.com/itspablosiu" target="_blank" class="tile small"><i class="fab fa-github"></i></a>
-    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="tile small"><i class="fab fa-twitch" style="color:#a970ff;"></i></a>
-    <a href="https://instagram.com/pablositt0" target="_blank" class="tile small"><i class="fab fa-instagram" style="color:#e4405f;"></i></a>
+    <div class="social-bar">
+        <a href="https://x.com/pablosiu_" target="_blank" class="social-btn"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="https://github.com/itspablosiu" target="_blank" class="social-btn"><i class="fab fa-github"></i></a>
+        <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="social-btn"><i class="fab fa-twitch"></i></a>
+        <a href="https://instagram.com/pablositt0" target="_blank" class="social-btn"><i class="fab fa-instagram"></i></a>
+    </div>
+
+    <div class="card" style="grid-column: span 2; padding: 15px; cursor: pointer; border-radius: 20px;" onclick="copy()">
+        <span style="font-size: 13px; opacity: 0.7;">Discord: <b>pablosiu_</b> (kliknij aby skopiować)</span>
+    </div>
 </div>
 
 <script>
-    const ID = "789133178144030737";
-    function start() {
+    const DISCORD_ID = "789133178144030737";
+    function launch() {
         document.getElementById('overlay').classList.add('hidden');
-        document.getElementById('bg-music').volume = 0.3;
-        document.getElementById('bg-music').play();
+        const m = document.getElementById('bg-music');
+        m.volume = 0.2; m.play();
         document.getElementById('bg-video').play();
     }
     function copy() { navigator.clipboard.writeText('pablosiu_'); alert('Skopiowano!'); }
 
     async function lanyard() {
         try {
-            const r = await fetch(`https://api.lanyard.rest/v1/users/${ID}`);
+            const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const { data } = await r.json();
             const av = document.getElementById('av');
-            const colors = { online:'#43b581', idle:'#faa61a', dnd:'#f04747', offline:'#747f8d' };
-            if(data.discord_user.avatar) av.src = `https://cdn.discordapp.com/avatars/${ID}/${data.discord_user.avatar}.${data.discord_user.avatar.startsWith('a_')?'gif':'png'}?size=256`;
-            av.style.borderColor = colors[data.discord_status] || colors.offline;
-
-            const sp = document.getElementById('sp-card');
+            if(data.discord_user.avatar) av.src = `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.${data.discord_user.avatar.startsWith('a_')?'gif':'png'}?size=256`;
+            
+            const sp = document.getElementById('spotify');
             if(data.listening_to_spotify) {
                 sp.style.display = 'flex';
-                document.getElementById('sp-title').innerText = data.spotify.track;
+                document.getElementById('sp-track').innerText = data.spotify.track;
                 document.getElementById('sp-artist').innerText = data.spotify.artist;
                 document.getElementById('sp-img').src = data.spotify.album_art_url;
-                document.getElementById('progress').style.width = ((Date.now()-data.spotify.timestamps.start)/(data.spotify.timestamps.end-data.spotify.timestamps.start)*100) + "%";
             } else { sp.style.display = 'none'; }
         } catch(e) {}
     }
