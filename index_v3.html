@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pablosiu | Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #030303;
+            --tile: rgba(15, 15, 15, 0.9);
+            --border-pixel: #222;
+            --accent: #bc13fe;
+            --yt: #ff0000;
+            --steam: #00adee;
+            --discord: #5865F2;
+            --spotify: #1DB954;
+            --twitch: #a970ff;
+            --glow: 0 0 15px rgba(188, 19, 254, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Press Start 2P', cursive; cursor: none; }
+
+        /* Custom Cursor */
+        #cursor {
+            position: fixed; width: 10px; height: 10px; background: white;
+            z-index: 9999; pointer-events: none; mix-blend-mode: difference;
+        }
+
+        body { 
+            background: var(--bg); color: white; height: 100vh; 
+            display: flex; justify-content: center; align-items: center; 
+            overflow: hidden; image-rendering: pixelated;
+        }
+        
+        /* Scanline / CRT Effect */
+        body::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100; background-size: 100% 4px, 3px 100%; pointer-events: none;
+        }
+
+        #bg-video { position: fixed; inset: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; filter: brightness(0.3) contrast(1.2); }
+
+        /* MUTE & STATUS */
+        .top-bar { position: fixed; top: 20px; width: 90%; max-width: 550px; display: flex; justify-content: space-between; z-index: 101; }
+        .pixel-btn {
+            background: var(--tile); border: 4px solid var(--border-pixel);
+            padding: 10px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 4px 4px 0px #000; transition: 0.1s;
+        }
+        .pixel-btn:hover { border-color: white; transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--accent); }
+
+        /* CONTAINER */
+        .container {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 15px; width: 90%; max-width: 550px; z-index: 1;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .pixel-tile {
+            background: var(--tile); border: 4px solid var(--border-pixel);
+            padding: 15px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-decoration: none;
+            color: white; box-shadow: 6px 6px 0px #000; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden;
+        }
+
+        .pixel-tile:hover { border-color: white; transform: scale(1.03); z-index: 2; }
+
+        /* PROFILE */
+        .p-profile { grid-column: span 4; flex-direction: row; gap: 20px; justify-content: flex-start; padding: 25px; border-color: var(--accent); }
+        .p-profile img { width: 70px; height: 70px; border: 4px solid var(--accent); image-rendering: auto; }
+        .p-profile h1 { font-size: 16px; text-shadow: 3px 3px var(--bg); }
+        .online-dot { width: 10px; height: 10px; background: #43b581; border-radius: 50%; display: inline-block; margin-left: 10px; box-shadow: 0 0 10px #43b581; }
+
+        /* SPOTIFY */
+        .p-spotify-fake {
+            grid-column: span 4; display: none;
+            flex-direction: row; align-items: center; gap: 15px;
+            background: rgba(29, 185, 84, 0.1); border-color: var(--spotify);
+        }
+        .p-spotify-fake img { width: 50px; height: 50px; border: 2px solid var(--spotify); border-radius: 4px; }
+        .sp-info { flex: 1; overflow: hidden; }
+        .sp-status { font-size: 7px; color: var(--spotify); margin-bottom: 8px; letter-spacing: 1px; }
+
+        /* GRID LAYOUT */
+        .p-yt { grid-column: span 2; border-color: var(--yt); }
+        .p-steam { grid-column: span 2; border-color: var(--steam); }
+        .p-discord-full { grid-column: span 4; height: 60px; font-size: 10px; flex-direction: row; gap: 15px; border-color: var(--discord); }
+        .p-small { grid-column: span 1; height: 60px; font-size: 18px; }
+
+        /* HOVER COLORS */
+        .p-yt:hover { box-shadow: 8px 8px 0px var(--yt); color: var(--yt); }
+        .p-steam:hover { box-shadow: 8px 8px 0px var(--steam); color: var(--steam); }
+        .p-discord:hover { box-shadow: 8px 8px 0px var(--discord); color: var(--discord); }
+        .p-twitch:hover { box-shadow: 8px 8px 0px var(--twitch); color: var(--twitch); }
+        .p-insta:hover { box-shadow: 8px 8px 0px #e6683c; color: #f09433; }
+
+        /* NOTIFICATION */
+        #notification {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: #fff; color: #000; border: 4px solid #000; padding: 10px 20px;
+            font-size: 10px; z-index: 2000; box-shadow: 6px 6px 0px var(--accent); transition: 0.4s;
+        }
+        #notification.show { top: 30px; }
+
+        /* START OVERLAY */
+        #overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .start-btn { border: 4px solid var(--accent); padding: 20px; font-size: 14px; color: var(--accent); box-shadow: 0 0 20px rgba(188, 19, 254, 0.2); }
+        #overlay.hidden { opacity: 0; pointer-events: none; transition: 0.5s; }
+    </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<video id="bg-video" loop muted playsinline><source src="bg.mp4" type="video/mp4"></video>
+<audio id="bg-music" loop><source src="background.mp3" type="audio/mpeg"></audio>
+
+<div id="notification">SKOPIOWANO TAG DISCORD!</div>
+
+<div id="overlay" onclick="launch()">
+    <div class="start-btn">INSERT COIN (CLICK)</div>
+    <p style="margin-top: 20px; font-size: 8px; color: #555;">v2.0 powered by Pablosiu</p>
+</div>
+
+<div class="top-bar">
+    <div class="pixel-btn" onclick="toggleMute()" id="mute-btn"><i class="fas fa-volume-up"></i></div>
+    <div class="pixel-btn" style="font-size: 8px;" id="clock">00:00:00</div>
+</div>
+
+<div class="container">
+    <div class="pixel-tile p-profile">
+        <img src="avatar.png" id="av">
+        <div>
+            <h1>Pablosiu <span class="online-dot"></span></h1>
+            <p style="font-size: 7px; color: #888; margin-top: 8px;">Full-stack Human</p>
+        </div>
+    </div>
+
+    <div class="pixel-tile p-spotify-fake" id="lfm-tile">
+        <img id="lfm-img" src="">
+        <div class="sp-info">
+            <p class="sp-status" id="lfm-status">NOW PLAYING</p>
+            <marquee id="lfm-track" scrollamount="4" style="font-size: 9px; color: white;"></marquee>
+        </div>
+        <i class="fab fa-spotify" style="color: var(--spotify); font-size: 18px; margin-right: 5px;"></i>
+    </div>
+
+    <a href="https://youtube.com/@Pvblosiu" target="_blank" class="pixel-tile p-yt">
+        <i class="fab fa-youtube" style="margin-bottom: 8px;"></i><span>YOUTUBE</span>
+    </a>
+    <a href="https://steamcommunity.com/id/pablosiu/" target="_blank" class="pixel-tile p-steam">
+        <i class="fab fa-steam" style="margin-bottom: 8px;"></i><span>STEAM</span>
+    </a>
+
+    <div class="pixel-tile p-discord-full p-discord" onclick="copy()">
+        <i class="fab fa-discord"></i><span id="discord-tag">PABLOSIU_</span>
+    </div>
+
+    <a href="https://x.com/pablosiu_" target="_blank" class="pixel-tile p-small"><i class="fa-brands fa-x-twitter"></i></a>
+    <a href="https://github.com/itspablosiu" target="_blank" class="pixel-tile p-small"><i class="fab fa-github"></i></a>
+    <a href="https://twitch.tv/WcaleNieAzile" target="_blank" class="pixel-tile p-small p-twitch"><i class="fab fa-twitch"></i></a>
+    <a href="https://instagram.com/pablositt0" target="_blank" class="pixel-tile p-small p-insta"><i class="fab fa-instagram"></i></a>
+</div>
+
+<script>
+    const LFM_USER = "arkadivsz"; 
+    const LFM_API_KEY = "0d22a6285362338637e9fe9eb97a1fd0";
+    const DISCORD_ID = "789133178144030737";
+    const music = document.getElementById('bg-music');
+    const cursor = document.getElementById('cursor');
+
+    // Custom Cursor logic
+    document.addEventListener('mousemove', e => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+    });
+
+    function launch() {
+        document.getElementById('overlay').classList.add('hidden');
+        music.volume = 0.15;
+        music.play();
+        document.getElementById('bg-video').play();
+    }
+
+    function toggleMute() {
+        music.muted = !music.muted;
+        document.getElementById('mute-btn').innerHTML = music.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function copy() {
+        navigator.clipboard.writeText('pablosiu_');
+        const n = document.getElementById('notification');
+        n.classList.add('show'); 
+        setTimeout(() => n.classList.remove('show'), 2500);
+    }
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('pl-PL', { hour12: false });
+    }
+    setInterval(updateClock, 1000);
+
+    async function updateLFM() {
+        try {
+            const r = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFM_USER}&api_key=${LFM_API_KEY}&format=json&limit=1`);
+            const data = await r.json();
+            const track = data.recenttracks.track[0];
+            const isPlaying = track['@attr'] && track['@attr'].nowplaying === 'true';
+            
+            if (isPlaying) {
+                document.getElementById('lfm-tile').style.display = 'flex';
+                document.getElementById('lfm-track').innerText = `${track.name.toUpperCase()} - ${track.artist['#text'].toUpperCase()}`;
+                document.getElementById('lfm-img').src = track.image[2]['#text'] || 'https://via.placeholder.com/50';
+            } else {
+                document.getElementById('lfm-tile').style.display = 'none';
+            }
+        } catch(e) { console.error("LFM Error"); }
+    }
+
+    async function updateDiscord() {
+        try {
+            const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+            const { data } = await r.json();
+            if(data.discord_user.avatar) {
+                document.getElementById('av').src = `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.gif?size=256`;
+            }
+            // Zmiana koloru kropki zależnie od statusu
+            const dot = document.querySelector('.online-dot');
+            const statusColors = { online: '#43b581', dnd: '#f04747', idle: '#faa61a', offline: '#747f8d' };
+            dot.style.background = statusColors[data.discord_status] || '#747f8d';
+            dot.style.boxShadow = `0 0 10px ${dot.style.background}`;
+        } catch(e) {}
+    }
+
+    setInterval(updateLFM, 10000);
+    setInterval(updateDiscord, 30000);
+    updateLFM();
+    updateDiscord();
+    updateClock();
+</script>
+</body>
+</html>
