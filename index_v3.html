@@ -10,37 +10,48 @@
     <style>
         :root {
             --bg: #101012;
-            --tile: rgba(20, 20, 25, 0.8);
+            --tile: rgba(20, 20, 25, 0.85);
             --border: rgba(255, 255, 255, 0.1);
             --accent: #bc13fe;
             --spotify: #1DB954;
+            /* Kolory Sociali */
+            --yt: #ff0000;
+            --steam: #00adee;
+            --discord: #5865F2;
+            --twitch: #a970ff;
+            --insta: #e1306c;
+            --twitter: #ffffff;
+            --github: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
-        /* --- TŁO WIDEO (Zredukowany Blur) --- */
+        /* --- TŁO WIDEO (Minimalny Blur) --- */
         #bg-video { 
             position: fixed; inset: 0; width: 100%; height: 100%; 
             z-index: -2; object-fit: cover; 
-            filter: brightness(0.4) blur(1.5px); /* Minimalny blur dla ostrości */
+            filter: brightness(0.4) blur(1px);
             pointer-events: none;
         }
 
-        /* --- CRT SCANLINES --- */
+        /* --- CRT OVERLAY --- */
         .crt-overlay {
             position: fixed; inset: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
             background-size: 100% 4px;
             z-index: 1000; pointer-events: none;
-            opacity: 0.4;
+            opacity: 0.3;
         }
 
-        /* --- POWIADOMIENIE --- */
+        /* --- CZARNO-BIAŁY KOMUNIKAT --- */
         #notification {
             position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
-            background: white; color: black; padding: 10px 24px;
-            border-radius: 4px; font-size: 11px; font-weight: bold; transition: 0.4s; z-index: 2000;
+            background: #ffffff; color: #000000; padding: 12px 30px;
+            border-radius: 2px; font-size: 11px; font-weight: 800; letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2000;
+            text-transform: uppercase;
         }
         #notification.show { top: 30px; }
 
@@ -50,8 +61,8 @@
             display: flex; justify-content: space-between; z-index: 1001;
         }
         .btn-top {
-            background: var(--tile); border: 1px solid var(--border); padding: 8px 12px;
-            border-radius: 6px; font-size: 10px; cursor: pointer; backdrop-filter: blur(5px);
+            background: var(--tile); border: 1px solid var(--border); padding: 8px 15px;
+            border-radius: 4px; font-size: 10px; cursor: pointer; backdrop-filter: blur(5px);
         }
 
         /* --- KONTENER --- */
@@ -62,48 +73,53 @@
 
         .tile {
             background: var(--tile); border: 1px solid var(--border);
-            padding: 16px; border-radius: 8px; display: flex; align-items: center;
-            gap: 12px; text-decoration: none; color: white; transition: 0.2s;
-            backdrop-filter: blur(10px);
+            padding: 16px; border-radius: 6px; display: flex; align-items: center;
+            gap: 15px; text-decoration: none; color: white; transition: 0.2s;
+            backdrop-filter: blur(8px);
         }
-        .tile:hover { border-color: var(--accent); background: rgba(40, 40, 45, 0.9); transform: translateY(-2px); }
+        .tile:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-2px); background: rgba(35, 35, 40, 0.9); }
 
         .full-width { grid-column: span 2; }
         
-        /* Profilowy */
-        .p-profile { padding: 20px; gap: 15px; border-color: rgba(188, 19, 254, 0.4); }
-        .p-profile img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--accent); }
-        .p-profile h1 { font-size: 18px; letter-spacing: -0.5px; }
-        .status-info { font-size: 10px; color: #aaa; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; background: #747f8d; }
+        /* Profil */
+        .p-profile { padding: 20px; border-color: var(--accent); }
+        .p-profile img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent); }
+        .p-profile h1 { font-size: 20px; }
+        .status-box { font-size: 10px; color: #aaa; margin-top: 5px; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #747f8d; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
         /* Spotify */
-        .p-spotify { display: none; border-left: 3px solid var(--spotify); }
-        .p-spotify img { width: 40px; height: 40px; border-radius: 4px; }
-        .sp-info p { font-size: 12px; font-weight: 500; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .p-spotify { display: none; border-left: 4px solid var(--spotify); }
+        .p-spotify img { width: 42px; height: 42px; border-radius: 4px; }
+        .sp-info p { font-size: 12px; font-weight: 500; width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        .tile i { font-size: 18px; width: 20px; text-align: center; }
+        .tile i { font-size: 20px; width: 25px; text-align: center; }
         .tile span { font-size: 13px; font-weight: 500; }
 
-        .fa-youtube { color: #ff0000; }
-        .fa-steam { color: #00adee; }
-        .fa-discord { color: #5865F2; }
+        /* KOLORY IKON */
+        .fa-youtube { color: var(--yt); }
+        .fa-steam { color: var(--steam); }
+        .fa-discord { color: var(--discord); }
+        .fa-twitch { color: var(--twitch); }
+        .fa-instagram { color: var(--insta); }
+        .fa-x-twitter { color: var(--twitter); }
+        .fa-github { color: var(--github); }
 
         /* Overlay */
         #overlay {
             position: fixed; inset: 0; background: #000; z-index: 9999;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
         }
-        .start-btn { border: 1px solid rgba(255,255,255,0.4); padding: 12px 24px; font-size: 11px; letter-spacing: 2px; }
+        .start-btn { border: 1px solid white; padding: 15px 35px; font-size: 11px; letter-spacing: 3px; }
     </style>
 </head>
 <body>
 
 <div class="crt-overlay"></div>
-<div id="notification">SKOPIOWANO DISCORD TAG!</div>
+<div id="notification">SKOPIOWANO TAG</div>
 
 <div id="overlay" onclick="launch()">
-    <div class="start-btn">KLIKNIJ ABY WEJŚĆ</div>
+    <div class="start-btn">ENTER SYSTEM</div>
 </div>
 
 <video id="bg-video" loop muted playsinline><source src="bg.mp4" type="video/mp4"></video>
@@ -119,9 +135,9 @@
         <img src="" id="av" alt="">
         <div>
             <h1 id="username">Pablosiu</h1>
-            <div class="status-info">
+            <div class="status-box">
                 <div id="status-dot" class="dot"></div>
-                <span id="dis-status">Ładowanie...</span>
+                <span id="dis-status">Łączenie...</span>
             </div>
         </div>
     </div>
@@ -129,7 +145,7 @@
     <div class="tile p-spotify full-width" id="lfm-tile">
         <img src="" id="lfm-img">
         <div class="sp-info">
-            <div style="font-size: 9px; color: var(--spotify); font-weight: bold; margin-bottom: 2px;">SŁUCHAM TERAZ</div>
+            <div style="font-size: 9px; color: var(--spotify); font-weight: 800; margin-bottom: 2px;">SPOTIFY</div>
             <p id="lfm-track">...</p>
         </div>
         <i class="fab fa-spotify" style="margin-left: auto; color: var(--spotify);"></i>
@@ -189,31 +205,23 @@
     }
 
     async function updateData() {
-        // Discord API (Lanyard)
         try {
             const r = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
             const { data } = await r.json();
-            
-            // Avatar
             if(data.discord_user.avatar) {
                 document.getElementById('av').src = `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.png?size=256`;
             }
-
-            // Status
-            const statusNames = { online: 'Online', dnd: 'Nie przeszkadzać', idle: 'Zaraz wracam', offline: 'Offline' };
+            const statusNames = { online: 'Dostępny', dnd: 'Nie przeszkadzać', idle: 'Zaraz wracam', offline: 'Niewidoczny' };
             const statusColors = { online: '#43b581', dnd: '#f04747', idle: '#faa61a', offline: '#747f8d' };
-            
             document.getElementById('dis-status').innerText = statusNames[data.discord_status] || 'Offline';
             document.getElementById('status-dot').style.background = statusColors[data.discord_status] || '#747f8d';
-        } catch(e) { console.error("Discord error"); }
+        } catch(e) {}
 
-        // Last.fm Spotify
         try {
             const r = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFM_USER}&api_key=${LFM_API_KEY}&format=json&limit=1`);
             const data = await r.json();
             const track = data.recenttracks.track[0];
             const isPlaying = track['@attr'] && track['@attr'].nowplaying === 'true';
-            
             const tile = document.getElementById('lfm-tile');
             if(isPlaying) {
                 tile.style.display = 'flex';
@@ -222,7 +230,7 @@
             } else {
                 tile.style.display = 'none';
             }
-        } catch(e) { console.error("Spotify error"); }
+        } catch(e) {}
     }
 
     setInterval(updateClock, 1000);
